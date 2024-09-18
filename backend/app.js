@@ -43,8 +43,8 @@ if (!isProduction) {
 
 app.use(routes);
 
-app.listen(8000, () => {
-    console.log("Server is running on port 5000");
+app.listen(environment.port, () => {
+    console.log(`Server is running on port ${environment.port}`);
 });
 
 module.exports = app;

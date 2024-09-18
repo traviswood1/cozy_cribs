@@ -2,12 +2,10 @@
 const express = require('express');
 const router = express.Router();
 
-
-
 // GET /api/set-token-cookie
 const { setTokenCookie } = require('../utils/auth.js');
 const { User } = require('../db/models');
-router.get('/set-token-cookie', async (_req, res) => {
+router.get('/api/set-token-cookie', async (_req, res) => {
   const user = await User.findOne({
     where: {
       username: 'Demo-lition'
@@ -28,11 +26,12 @@ router.get("/api/csrf/restore", (req, res) => {
 
 // backend/routes/index.js
 // ...
+
 const apiRouter = require('./api');
 
-
-
 router.use('/api', apiRouter);
+
+
 
 
 

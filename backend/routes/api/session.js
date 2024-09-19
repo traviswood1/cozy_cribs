@@ -46,12 +46,13 @@ router.post(
     }
   );
 
-  fetch('/api/session', {
-    method: 'DELETE',
-    headers: {
-      "Content-Type": "application/json",
-      "XSRF-TOKEN": `<value of XSRF-TOKEN cookie>`
+// Log out
+router.delete(
+    '/',
+    (_req, res) => {
+      res.clearCookie('token');
+      return res.json({ message: 'success' });
     }
-  }).then(res => res.json()).then(data => console.log(data));
+  );
 
 module.exports = router;

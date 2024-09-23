@@ -1,4 +1,11 @@
 'use strict';
+const { Spot } = require('../models');
+
+let options = {};
+if (process.env.NODE_ENV === 'production') {
+  options.schema = process.env.SCHEMA;  // define your schema in options object
+}
+
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -12,7 +19,7 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
      */
-    await queryInterface.bulkInsert('Spots', [
+    await Spot.bulkCreate([
       {
         address: '123 Main St',
         city: 'San Francisco',
@@ -52,7 +59,7 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date()
       },
-    ], {});
+    ], options);
   },
 
   async down (queryInterface, Sequelize) {

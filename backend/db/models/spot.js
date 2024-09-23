@@ -1,7 +1,14 @@
 const { Model, DataTypes } = require('sequelize');
-const sequelize = require('../config/connection');
 
-class Spot extends Model {}
+
+
+
+module.exports = (sequelize, DataTypes) => {
+  class Spot extends Model {
+    static associate(models) {
+      // define association here
+    }
+  }
 
 Spot.init(
   {
@@ -73,4 +80,6 @@ Spot.init(
   }
 );
 
-module.exports = Spot;
+return Spot;
+}
+

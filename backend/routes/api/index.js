@@ -5,6 +5,7 @@ const sessionRouter = require('./session.js');
 const usersRouter = require('./user.js');
 const spotRouter = require('./spot.js');
 
+
 // Connects restoreUser middleware to the API router
   // If current user session is valid, set req.user to the user in the database
   // If current user session is not valid, set req.user to null

@@ -15,6 +15,15 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true,
       },
+      ownerId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'users',
+          key: 'id'
+        },
+        onDelete: 'cascade'
+      },
       address: {
         type: Sequelize.STRING,
         allowNull: false,

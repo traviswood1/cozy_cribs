@@ -21,6 +21,7 @@ module.exports = {
      */
     await Spot.bulkCreate([
       {
+        ownerId: 1,
         address: '123 Main St',
         city: 'San Francisco',
         state: 'CA',
@@ -34,6 +35,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
+        ownerId: 2,
         address: '456 Elm St',
         city: 'San Francisco',
         state: 'CA',
@@ -47,6 +49,7 @@ module.exports = {
         updatedAt: new Date()
       },
       {
+        ownerId: 3,
         address: '789 Oak St',
         city: 'San Francisco',
         state: 'CA',

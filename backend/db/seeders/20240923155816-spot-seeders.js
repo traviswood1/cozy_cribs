@@ -10,7 +10,7 @@ if (process.env.NODE_ENV === 'production') {
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await Spot.bulkCreate([
+    await queryInterface.bulkInsert([
       {
         ownerId: 1,
         address: '123 Main St',
@@ -53,7 +53,7 @@ module.exports = {
         createdAt: new Date(),
         updatedAt: new Date()
       },
-    ], options);
+    ], { validate: true, individualHooks: true });
   },
 
   async down (queryInterface, Sequelize) {

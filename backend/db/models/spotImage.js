@@ -22,6 +22,11 @@ SpotImage.init(
     spotId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: 'Spots',
+        key: 'id'
+      },
+      onDelete: 'cascade'
     },
     url: {
       type: DataTypes.STRING,

@@ -23,10 +23,20 @@ Review.init(
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: 'Users',
+        key: 'id'
+      },
+      onDelete: 'cascade'
     },
     spotId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: 'Spots',
+        key: 'id'
+      },
+      onDelete: 'cascade'
     },
     review: {
       type: DataTypes.STRING,

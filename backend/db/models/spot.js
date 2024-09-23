@@ -22,7 +22,7 @@ Spot.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'users',
+        model: 'Users',
         key: 'id'
       },
     },
@@ -110,7 +110,7 @@ Spot.init(
   {
     sequelize,
     modelName: 'Spot',
-    tableName: 'spots',
+    tableName: 'Spots',
     timestamps: true,
   }
 );

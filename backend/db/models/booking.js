@@ -21,10 +21,20 @@ Booking.init(
     spotId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: 'Spots',
+        key: 'id'
+      },
+      onDelete: 'cascade'
     },
     userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: 'Users',
+        key: 'id'
+      },
+      onDelete: 'cascade'
     },
     startDate: {
       type: DataTypes.DATE,

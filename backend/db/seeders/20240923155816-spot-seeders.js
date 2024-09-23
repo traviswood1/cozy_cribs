@@ -1,16 +1,15 @@
 'use strict';
-const { Spot } = require('../models');
 
 let options = {};
 if (process.env.NODE_ENV === 'production') {
-  options.schema = process.env.SCHEMA;  // define your schema in options object
+  options.schema = process.env.SCHEMA;
 }
-
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.bulkInsert([
+    options.tableName = 'Spots';
+    const spots = [
       {
         ownerId: 1,
         address: '123 Main St',
@@ -22,42 +21,22 @@ module.exports = {
         name: 'Cozy Cottage',
         description: 'A charming cottage in the heart of the city.',
         price: 100.00,
-        createdAt: new Date(),
-        updatedAt: new Date()
       },
-      {
-        ownerId: 2,
-        address: '456 Elm St',
-        city: 'San Francisco',
-        state: 'CA',
-        country: 'USA',
-        lat: 37.7749,
-        lng: -122.4194,
-        name: 'Modern Apartment',
-        description: 'A modern apartment with a view of the city.',
-        price: 150.00,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        ownerId: 3,
-        address: '789 Oak St',
-        city: 'San Francisco',
-        state: 'CA',
-        country: 'USA',
-        lat: 37.7749,
-        lng: -122.4194,
-        name: 'Seaside Villa',
-        description: 'A luxurious villa by the sea.',
-        price: 200.00,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-    ], { validate: true, individualHooks: true });
+      // ... other spots ...
+    ];
+
+    await queryInterface.bulkInsert(options.tableName, spots.map(spot => ({
+      ...spot,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    })), {});
   },
 
   async down (queryInterface, Sequelize) {
     options.tableName = 'Spots';
-    await queryInterface.bulkDelete(options.tableName, null, {});
+    const Op = Sequelize.Op;
+    return queryInterface.bulkDelete(options.tableName, {
+      ownerId: { [Op.in]: [1, 2, 3] }
+    }, {});
   }
 };

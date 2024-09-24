@@ -9,15 +9,9 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   async up (queryInterface, Sequelize) {
-    console.log('Starting up seeder');
-    console.log('Options:', JSON.stringify(options));
-    console.log('NODE_ENV:', process.env.NODE_ENV);
-    console.log('SCHEMA:', process.env.SCHEMA);
-
-    try {
-      options.tableName = 'Users';  // Add this line to specify the table name
-      await queryInterface.bulkInsert(options, [
-        {
+    options.tableName = 'Users';
+    await queryInterface.bulkInsert(options, [
+      {
           email: 'demo@user.io',
           username: 'Demo-lition',
           firstName: 'Demo',
@@ -45,24 +39,10 @@ module.exports = {
           updatedAt: new Date()
         }
       ]);
-      console.log('Seeding completed successfully');
-    } catch (error) {
-      console.error('Error in seeder up:', error);
-      throw error;  // Re-throw the error to stop the seeding process
-    }
   },
 
   async down (queryInterface, Sequelize) {
-    console.log('Starting down seeder');
-    console.log('Options:', JSON.stringify(options));
-    
-    try {
       options.tableName = 'Users';
       await queryInterface.bulkDelete(options, null, {});
-      console.log('Seeding reverted successfully');
-    } catch (error) {
-      console.error('Error in seeder down:', error);
-      throw error;  // Re-throw the error to stop the seeding process
-    }
   }
 };

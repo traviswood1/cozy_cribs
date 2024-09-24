@@ -53,7 +53,29 @@ const calculateAverageRating = (reviews) => {
   return (sum / reviews.length).toFixed(1);
 };
 
+//POST a new spot image
+router.post('/:spotId/images', requireAuth, async (req, res) => {
+  const { url, preview } = req.body;
 
+  const spot = await Spot.findByPk(req.params.spotId);
+  if (!spot) {
+    return res.status(404).json({ message: "Spot couldn't be found" });
+  }
+
+  const newSpotImage = await SpotImage.create({
+    spotId: req.params.spotId,
+    url,
+    preview,
+  });
+
+  // Convert to plain object and exclude specified properties
+  const response = newSpotImage.toJSON();
+  delete response.spotId;
+  delete response.createdAt;
+  delete response.updatedAt;
+
+  return res.json(response);
+});
 
 // Get all spots
 router.get('/', async (req, res) => {

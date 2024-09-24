@@ -1,5 +1,7 @@
 'use strict';
 
+const { User } = require('../models');
+
 let options = {};
 if (process.env.NODE_ENV === 'production') {
   options.schema = process.env.SCHEMA;
@@ -9,9 +11,17 @@ if (process.env.NODE_ENV === 'production') {
 module.exports = {
   async up (queryInterface, Sequelize) {
     options.tableName = 'Spots';
+
+    // First, let's get some valid user IDs
+    const users = await User.findAll({ limit: 3 });
+    if (users.length < 3) {
+      console.error('Not enough users in the database. Please run the user seeder first.');
+      return;
+    }
+
     const spots = [
       {
-        ownerId: 1,
+        ownerId: users[0].id,
         address: '123 Main St',
         city: 'San Francisco',
         state: 'CA',
@@ -22,7 +32,30 @@ module.exports = {
         description: 'A charming cottage in the heart of the city.',
         price: 100.00,
       },
-      // ... other spots ...
+      {
+        ownerId: users[1].id,
+        address: '456 Elm St',
+        city: 'New York',
+        state: 'NY',
+        country: 'USA',
+        lat: 40.7128,
+        lng: -74.0060,
+        name: 'Modern Apartment',
+        description: 'A modern apartment with a view of the city skyline.',
+        price: 150.00,
+      },
+      {
+        ownerId: users[2].id,
+        address: '789 Oak St',
+        city: 'Los Angeles',
+        state: 'CA',
+        country: 'USA',
+        lat: 34.0522,
+        lng: -118.2437,
+        name: 'Seaside Villa',
+        description: 'A luxurious villa by the Pacific Ocean.',
+        price: 200.00,
+      },
     ];
 
     await queryInterface.bulkInsert(options.tableName, spots.map(spot => ({
@@ -36,7 +69,11 @@ module.exports = {
     options.tableName = 'Spots';
     const Op = Sequelize.Op;
     return queryInterface.bulkDelete(options.tableName, {
-      ownerId: { [Op.in]: [1, 2, 3] }
+      [Op.or]: [
+        { address: '123 Main St' },
+        { address: '456 Elm St' },
+        { address: '789 Oak St' }
+      ]
     }, {});
   }
 };

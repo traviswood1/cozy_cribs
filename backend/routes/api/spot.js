@@ -81,7 +81,45 @@ router.get('/', async (req, res) => {
   });
 
   res.json(spotsWithRatings);
-});   
+}); 
+
+//Edit a Spot
+router.put('/spots/:spotId', requireAuth, validateSpot, async (req, res) => {
+  try {
+    const { address, city, state, country, lat, lng, name, description, price } = req.body;
+    const spot = await Spot.findByPk(req.params.spotId);
+    if (!spot) {
+      return res.status(404).json({ message: "Spot couldn't be found" });
+    }
+    if (spot.ownerId !== req.user.id) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    const plainSpot = spot.get({ plain: true });
+    const { Reviews, ...spotData } = plainSpot;
+
+    const formattedSpot = {
+      id: spotData.id,
+      ownerId: spotData.ownerId,
+      address: spotData.address,
+      city: spotData.city,
+      state: spotData.state,
+      country: spotData.country,
+      lat: spotData.lat,
+      lng: spotData.lng,
+      name: spotData.name,
+      description: spotData.description,
+      price: spotData.price,
+      createdAt: spotData.createdAt,
+      updatedAt: spotData.updatedAt,
+    };
+
+    res.json(formattedSpot);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "An error occurred while fetching the spot" });
+  }
+});
 
 //GET all spots by current user
 router.get('/current', requireAuth, async (req, res) => {

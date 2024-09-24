@@ -43,7 +43,7 @@ const validateSpot = [
     .withMessage('Price must be a postive number'),
   handleValidationErrors
 ];
-const { Review } = require('../../db/models');
+const { Review, SpotImage } = require('../../db/models');
 const { Op } = require('sequelize');
 
 // Helper function to calculate average rating
@@ -61,20 +61,65 @@ router.get('/', async (req, res) => {
     include: [{
       model: Review,
       attributes:['stars']
-    }]
-  });
+    },
+    {
+      model: SpotImage,
+      attributes: ['url'],
+      where: { preview: true },
+      required: false,
+      limit: 1
+    }
+  ],
+  // group: ['Spot.id']
+});
 
   const spotsWithRatings = spots.map(spot => {
     const plainSpot = spot.get({ plain: true });
-    const { Reviews, ...spotWithoutReviews } = plainSpot;
+    const { Reviews, SpotImages, ...spotWithoutReviews } = plainSpot;
     return {
       ...spotWithoutReviews,
-      avgStarRating: calculateAverageRating(Reviews)
+      avgStarRating: calculateAverageRating(Reviews),
+      previewImage: spot.SpotImages[0].url  
     };
   });
 
   res.json(spotsWithRatings);
 });   
+
+//GET details of a Spot from an id
+router.get('/spotId', async (req, res) => {
+  try {
+    // const spotId = req.params.spotId;
+     await Spot.findByPk(req.params.id, {
+      include: [
+        {
+          model: Review,
+          attributes: ['stars']
+        },
+        {
+          model: SpotImage,
+          attributes: ['url'],
+          where: { preview: true },
+          required: false
+        }
+      ]
+    });
+
+    const plainSpot = spot.get({ plain: true });
+    const { Reviews, SpotImages, ...spotData } = plainSpot;
+
+    const formattedSpot = {
+      ...spotData,
+      avgStarRating: calculateAverageRating(Reviews),
+      previewImage: SpotImages && SpotImages.length > 0 ? SpotImages[0].url : null
+    };
+
+    res.json(formattedSpot);
+  } catch (error) {
+    console.error('Error in getSpotById:', error);
+    res.status(500).json({ message: 'An error occurred while fetching the spot.' });
+  }
+});
 
 //POST a new spot
 router.post('/', requireAuth, validateSpot, async (req, res) => {

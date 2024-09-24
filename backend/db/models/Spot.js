@@ -1,6 +1,7 @@
 'use strict';
 const { Model, DataTypes } = require('sequelize');
 const { Validator } = require('sequelize');
+const SpotImage = require('./SpotImage');
 
 
 module.exports = (sequelize, DataTypes) => {
@@ -9,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Spot.belongsTo(models.User, { foreignKey: 'ownerId' });
       Spot.hasMany(models.Review, { foreignKey: 'spotId' });
+      Spot.hasMany(models.SpotImage, { foreignKey: 'spotId' });
     }
   }
 
@@ -98,9 +100,12 @@ Spot.init(
         }
       },
     },
-    avgStarRating: {
-      type: DataTypes.VIRTUAL,
-  },  
+  //   avgStarRating: {
+  //     type: DataTypes.VIRTUAL,
+  // },  
+  // SpotImages: {
+  //   type: DataTypes.VIRTUAL,
+    // },  
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,

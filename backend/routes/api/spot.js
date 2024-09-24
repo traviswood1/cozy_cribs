@@ -53,8 +53,6 @@ const calculateAverageRating = (reviews) => {
   return (sum / reviews.length).toFixed(1);
 };
 
-
-
 // Get all spots
 router.get('/', async (req, res) => {
   const spots = await Spot.findAll({
@@ -86,52 +84,41 @@ router.get('/', async (req, res) => {
 });   
 
 //GET all spots by current user
-// router.get('/current', requireAuth, async (req, res) => {
-//   const userId = req.user.id;
-//   const spots = await Spot.findAll({
-//     where: { ownerId: userId },
-//     include: [
-//       {
-//         model: Review,
-//         attributes: ['stars']
-//       },
-//       {
-//         model: SpotImage,
-//         attributes: ['id', 'url', 'preview'],
-//         where: { preview: true },
-//         required: false
-//       },
-//       {
-//         model: User,
-//         attributes: ['id', 'firstName', 'lastName']
-//       }
-//     ]
-//   });
+router.get('/current', requireAuth, async (req, res) => {
+  const userId = req.user.id;
+  const spots = await Spot.findAll({
+    where: { ownerId: userId },
+    include: [
+      {
+        model: User,
+        attributes: ['id', 'firstName', 'lastName']
+      }
+    ]
+  });
 
-// const formattedSpots = spots.map(spot => {
-//   const plainSpot = spot.get({ plain: true });
-//   const { Reviews, SpotImages, ...spotData } = plainSpot;
+  const formattedSpots = spots.map(spot => {
+    const plainSpot = spot.get({ plain: true });
+    const { User, ...spotData } = plainSpot;
 
-//   const formattedSpot = {
-//     id: spotData.id,
-//     ownerId: spotData.ownerId,
-//     address: spotData.address,
-//     city: spotData.city,
-//     state: spotData.state,
-//     country: spotData.country,
-//     lat: spotData.lat,
-//     lng: spotData.lng,
-//     name: spotData.name,
-//     description: spotData.description,
-//     price: spotData.price,
-//     createdAt: spotData.createdAt,
-//     updatedAt: spotData.updatedAt,
-//     avgRating: calculateAverageRating(Reviews),
-//     previewImage: SpotImages.length > 0 ? SpotImages[0].url : null
-//   };
+    return {
+      id: spotData.id,
+      ownerId: spotData.ownerId,
+      address: spotData.address,
+      city: spotData.city,
+      state: spotData.state,
+      country: spotData.country,
+      lat: spotData.lat,
+      lng: spotData.lng,
+      name: spotData.name,
+      description: spotData.description,
+      price: spotData.price,
+      createdAt: spotData.createdAt,
+      updatedAt: spotData.updatedAt
+    };
+  });
 
-//   res.json({ Spots: formattedSpots });
-// });
+  res.json({ Spots: formattedSpots });
+});
 
 //GET details of a Spot from an id
 router.get('/:spotId', async (req, res) => {

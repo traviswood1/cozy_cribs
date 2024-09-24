@@ -1,9 +1,16 @@
 'use strict';
 
+const { Review } = require('../models');
+
+let options = {};
+if (process.env.NODE_ENV === "production") {
+	options.schema = process.env.SCHEMA; // define your schema in options object
+}
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.bulkInsert('reviews', [
+    await Review.bulkCreate([
       {
         userId: 1,
         spotId: 1,
@@ -18,14 +25,15 @@ module.exports = {
       },
       {
         userId: 3,
-        spotId: 3,
-        review: 'Mediocre spot!',
-        stars: 3,
-      },
-    ]);
-  },
+				spotId: 3,
+				review: "Mediocre spot!",
+				stars: 3,
+			},
+		]);
+	},
 
-  async down (queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('reviews', null, {});
-  }
+	async down(queryInterface, Sequelize) {
+		options.tableName = "Reviews";
+		return queryInterface.bulkDelete(options, null, {});
+	},
 };

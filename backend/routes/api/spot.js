@@ -53,8 +53,6 @@ const calculateAverageRating = (reviews) => {
   return (sum / reviews.length).toFixed(1);
 };
 
-
-
 // Get all spots
 router.get('/', async (req, res) => {
   const spots = await Spot.findAll({
@@ -70,7 +68,6 @@ router.get('/', async (req, res) => {
       limit: 1
     }
   ],
-  // group: ['Spot.id']
 });
 
   const spotsWithRatings = spots.map(spot => {
@@ -85,6 +82,43 @@ router.get('/', async (req, res) => {
 
   res.json(spotsWithRatings);
 });   
+
+//GET all spots by current user
+router.get('/current', requireAuth, async (req, res) => {
+  const userId = req.user.id;
+  const spots = await Spot.findAll({
+    where: { ownerId: userId },
+    include: [
+      {
+        model: User,
+        attributes: ['id', 'firstName', 'lastName']
+      }
+    ]
+  });
+
+  const formattedSpots = spots.map(spot => {
+    const plainSpot = spot.get({ plain: true });
+    const { User, ...spotData } = plainSpot;
+
+    return {
+      id: spotData.id,
+      ownerId: spotData.ownerId,
+      address: spotData.address,
+      city: spotData.city,
+      state: spotData.state,
+      country: spotData.country,
+      lat: spotData.lat,
+      lng: spotData.lng,
+      name: spotData.name,
+      description: spotData.description,
+      price: spotData.price,
+      createdAt: spotData.createdAt,
+      updatedAt: spotData.updatedAt
+    };
+  });
+
+  res.json({ Spots: formattedSpots });
+});
 
 //GET details of a Spot from an id
 router.get('/:spotId', async (req, res) => {

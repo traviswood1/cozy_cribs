@@ -20,6 +20,8 @@ module.exports = {
 				name: "App Academy",
 				description: "Place where web developers are created",
 				price: 123,
+        createdAt: new Date(),
+        updatedAt: new Date(),
 			},
       {
         ownerId: 2,
@@ -32,6 +34,8 @@ module.exports = {
         name: "Modern Apartment",
         description: "A modern apartment with a view of the city skyline.",
         price: 150.00,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
       {
         ownerId: 3,
@@ -44,6 +48,8 @@ module.exports = {
         name: "Seaside Villa",
         description: "A luxurious villa by the Pacific Ocean.",
         price: 200.00,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
 		]);
 	},

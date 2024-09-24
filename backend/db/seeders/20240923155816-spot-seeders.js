@@ -11,7 +11,7 @@ if (process.env.NODE_ENV === "production") {
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
 	async up(queryInterface, Sequelize) {
-		await Spot.bulkCreate([
+		await queryInterface.bulkInsert(options, [
 			{
 				ownerId: 1,
 				address: "123 Disney Lane",

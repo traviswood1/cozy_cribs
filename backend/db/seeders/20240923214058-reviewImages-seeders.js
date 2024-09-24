@@ -10,7 +10,7 @@ if (process.env.NODE_ENV === "production") {
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await ReviewImage.bulkCreate([
+    await queryInterface.bulkInsert(options, [
       {
         reviewId: 1,
         url: 'https://example.com/review1.jpg',

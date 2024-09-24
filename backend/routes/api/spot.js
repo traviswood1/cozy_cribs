@@ -88,12 +88,12 @@ router.get('/current', requireAuth, async (req, res) => {
   const userId = req.user.id;
   const spots = await Spot.findAll({
     where: { ownerId: userId },
-    include: [
+    include:      
       {
         model: User,
         attributes: ['id', 'firstName', 'lastName']
       }
-    ]
+    
   });
 
   const formattedSpots = spots.map(spot => {
@@ -122,7 +122,8 @@ router.get('/current', requireAuth, async (req, res) => {
 
 //GET details of a Spot from an id
 router.get('/:spotId', async (req, res) => {
-     const spot = await Spot.findByPk(req.params.spotId, {
+  try {
+    const spot = await Spot.findByPk(req.params.spotId, {
       include: [
         {
           model: Review,
@@ -140,6 +141,10 @@ router.get('/:spotId', async (req, res) => {
         }
       ]
     });
+
+    if (!spot) {
+      return res.status(404).json({ message: "Spot couldn't be found" });
+    }
 
     const plainSpot = spot.get({ plain: true });
     const { Reviews, ...spotData } = plainSpot;
@@ -164,7 +169,11 @@ router.get('/:spotId', async (req, res) => {
       Owner: spotData.User,
     };
 
-  res.json(formattedSpot);
+    res.json(formattedSpot);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "An error occurred while fetching the spot" });
+  }
 });
 
 //POST a new spot

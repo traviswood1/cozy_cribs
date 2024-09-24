@@ -27,24 +27,42 @@ const validateSignup = [
 // Sign up
 router.post(
   '/',
-  async (req, res) => {
+  validateSignup,
+  async (req, res, next) => {
     const { email, password, username, lastName, firstName } = req.body;
-    const hashedPassword = bcrypt.hashSync(password);
-    const user = await User.create({ email, username, hashedPassword, lastName, firstName });
+    
+    try {
+      const hashedPassword = bcrypt.hashSync(password);
+      const user = await User.create({ email, username, hashedPassword, lastName, firstName });
 
-    const safeUser = {
-      id: user.id,
-      email: user.email,
-      username: user.username,
-      lastName: user.lastName,
-      firstName: user.firstName
-    };
+      const safeUser = {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        lastName: user.lastName,
+        firstName: user.firstName
+      };
 
-    await setTokenCookie(res, safeUser);
+      await setTokenCookie(res, safeUser);
 
-    return res.json({
-      user: safeUser
-    });
+      return res.json({
+        user: safeUser
+      });
+    } catch (error) {
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        const errors = {};
+        error.errors.forEach(e => {
+          if (e.path === 'email' || e.path === 'username') {
+            errors[e.path] = `User with that ${e.path} already exists`;
+          }
+        });
+        return res.status(500).json({
+          message: "User already exists",
+          errors: errors
+        });
+      }
+      next(error);
+    }
   }
 );
 

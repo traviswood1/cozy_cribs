@@ -46,6 +46,10 @@ Review.init(
     stars: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      validate: {
+        min: 1,
+        max: 5,
+      },  
     },
     createdAt: {
       type: DataTypes.DATE,

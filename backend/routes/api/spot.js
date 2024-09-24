@@ -43,13 +43,38 @@ const validateSpot = [
     .withMessage('Price must be a postive number'),
   handleValidationErrors
 ];
+const { Review } = require('../../db/models');
+const { Op } = require('sequelize');
+
+// Helper function to calculate average rating
+const calculateAverageRating = (reviews) => {
+  if (reviews.length === 0) return null;
+  const sum = reviews.reduce((acc, review) => acc + review.stars, 0);
+  return (sum / reviews.length).toFixed(1);
+};
+
 
 
 // Get all spots
 router.get('/', async (req, res) => {
-  const spots = await Spot.findAll();
-  res.json(spots);
-});
+  const spots = await Spot.findAll({
+    include: [{
+      model: Review,
+      attributes:['stars']
+    }]
+  });
+
+  const spotsWithRatings = spots.map(spot => {
+    const plainSpot = spot.get({ plain: true });
+    const { Reviews, ...spotWithoutReviews } = plainSpot;
+    return {
+      ...spotWithoutReviews,
+      avgStarRating: calculateAverageRating(Reviews)
+    };
+  });
+
+  res.json(spotsWithRatings);
+});   
 
 //POST a new spot
 router.post('/', requireAuth, validateSpot, async (req, res) => {

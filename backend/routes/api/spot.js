@@ -87,10 +87,8 @@ router.get('/', async (req, res) => {
 });   
 
 //GET details of a Spot from an id
-router.get('/spotId', async (req, res) => {
-  try {
-    // const spotId = req.params.spotId;
-     await Spot.findByPk(req.params.id, {
+router.get('/:spotId', async (req, res) => {
+     const spot = await Spot.findByPk(req.params.spotId, {
       include: [
         {
           model: Review,
@@ -98,27 +96,41 @@ router.get('/spotId', async (req, res) => {
         },
         {
           model: SpotImage,
-          attributes: ['url'],
+          attributes: ['id', 'url', 'preview'],
           where: { preview: true },
           required: false
+        },
+        {
+          model: User,
+          attributes: ['id', 'firstName', 'lastName']
         }
       ]
     });
 
     const plainSpot = spot.get({ plain: true });
-    const { Reviews, SpotImages, ...spotData } = plainSpot;
+    const { Reviews, ...spotData } = plainSpot;
 
     const formattedSpot = {
-      ...spotData,
+      id: spotData.id,
+      ownerId: spotData.ownerId,
+      address: spotData.address,
+      city: spotData.city,
+      state: spotData.state,
+      country: spotData.country,
+      lat: spotData.lat,
+      lng: spotData.lng,
+      name: spotData.name,
+      description: spotData.description,
+      price: spotData.price,
+      createdAt: spotData.createdAt,
+      updatedAt: spotData.updatedAt,
+      numReviews: Reviews.length,
       avgStarRating: calculateAverageRating(Reviews),
-      previewImage: SpotImages && SpotImages.length > 0 ? SpotImages[0].url : null
+      SpotImages: spotData.SpotImages,
+      Owner: spotData.User,
     };
 
-    res.json(formattedSpot);
-  } catch (error) {
-    console.error('Error in getSpotById:', error);
-    res.status(500).json({ message: 'An error occurred while fetching the spot.' });
-  }
+  res.json(formattedSpot);
 });
 
 //POST a new spot

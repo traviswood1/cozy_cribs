@@ -223,33 +223,69 @@ router.post('/:spotId/images', requireAuth, async (req, res) => {
 
 // Get all spots
 router.get('/', async (req, res) => {
-  const spots = await Spot.findAll({
-    include: [{
-      model: Review,
-      attributes:['stars']
-    },
-    {
-      model: SpotImage,
-      attributes: ['url'],
-      where: { preview: true },
-      required: false,
-      limit: 1
-    }
-  ],
+  let { page, size, minLat, maxLat, minLng, maxLng, minPrice, maxPrice } = req.query;
+
+  // Pagination
+  page = parseInt(page) || 1;
+  size = parseInt(size) || 20;
+  if (page < 1) page = 1;
+  if (size < 1) size = 1;
+  if (size > 20) size = 20;
+  const offset = (page - 1) * size;
+
+  // Filtering
+  const where = {};
+  if (minLat !== undefined) where.lat = { ...where.lat, [Op.gte]: parseFloat(minLat) };
+  if (maxLat !== undefined) where.lat = { ...where.lat, [Op.lte]: parseFloat(maxLat) };
+  if (minLng !== undefined) where.lng = { ...where.lng, [Op.gte]: parseFloat(minLng) };
+  if (maxLng !== undefined) where.lng = { ...where.lng, [Op.lte]: parseFloat(maxLng) };
+  if (minPrice !== undefined) {
+    const price = parseFloat(minPrice);
+    if (price >= 0) where.price = { ...where.price, [Op.gte]: price };
+  }
+  if (maxPrice !== undefined) {
+    const price = parseFloat(maxPrice);
+    if (price >= 0) where.price = { ...where.price, [Op.lte]: price };
+  }
+
+  try {
+    const spots = await Spot.findAll({
+      where,
+      include: [{
+        model: Review,
+        attributes: ['stars']
+      },
+      {
+        model: SpotImage,
+        attributes: ['url'],
+        where: { preview: true },
+        required: false,
+        limit: 1
+      }],
+      limit: size,
+      offset: offset
+    });
+
+    const spotsWithRatings = spots.map(spot => {
+      const plainSpot = spot.get({ plain: true });
+      const { Reviews, SpotImages, ...spotWithoutReviews } = plainSpot;
+      return {
+        ...spotWithoutReviews,
+        avgRating: calculateAverageRating(Reviews),
+        previewImage: spot.SpotImages[0]?.url || null
+      };
+    });
+
+    res.json({
+      Spots: spotsWithRatings,
+      page,
+      size
+    });
+  } catch (error) {
+    console.error('Error fetching spots:', error);
+    res.status(500).json({ message: "An error occurred while fetching spots" });
+  }
 });
-
-  const spotsWithRatings = spots.map(spot => {
-    const plainSpot = spot.get({ plain: true });
-    const { Reviews, SpotImages, ...spotWithoutReviews } = plainSpot;
-    return {
-      ...spotWithoutReviews,
-      avgStarRating: calculateAverageRating(Reviews),
-      previewImage: spot.SpotImages[0].url  
-    };
-  });
-
-  res.json(spotsWithRatings);
-}); 
 
 //Edit a Spot
 router.put('/:spotId', requireAuth, validateSpot, async (req, res, next) => {

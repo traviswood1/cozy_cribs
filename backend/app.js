@@ -47,17 +47,6 @@ if (!isProduction) {
 
 app.use(routes);
 
-// backend/app.js
-// ...
-// Catch unhandled requests and forward to error handler.
-app.use((_req, _res, next) => {
-  const err = new Error("The requested resource couldn't be found.");
-  err.title = "Resource Not Found";
-  err.errors = { message: "The requested resource couldn't be found." };
-  err.status = 404;
-  next(err);
-});
-
 // Process sequelize errors
 app.use((err, _req, _res, next) => {
   // check if error is a Sequelize error:
@@ -69,6 +58,15 @@ app.use((err, _req, _res, next) => {
     err.title = 'Validation error';
     err.errors = errors;
   }
+  next(err);
+});
+
+// Catch unhandled requests and forward to error handler.
+app.use((_req, _res, next) => {
+  const err = new Error("The requested resource couldn't be found.");
+  err.title = "Resource Not Found";
+  err.errors = { message: "The requested resource couldn't be found." };
+  err.status = 404;
   next(err);
 });
 

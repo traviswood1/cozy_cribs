@@ -39,7 +39,7 @@ const validateSpot = [
     .withMessage('Description is required'),
   check('price')
     .exists({ checkFalsy: true })
-    .isDecimal({ min: 0, decimal_digits: '0,2' })
+    .isFloat({ min: 0.00 })
     .withMessage('Price must be a postive number'),
   handleValidationErrors
 ];
@@ -105,7 +105,58 @@ router.get('/', async (req, res) => {
   });
 
   res.json(spotsWithRatings);
-});   
+}); 
+
+//Edit a Spot
+router.put('/:spotId', requireAuth, validateSpot, async (req, res, next) => {
+  const spotId = req.params.spotId;
+  console.log(`Starting PUT request for spot ${spotId}`);
+
+  try {
+    console.log(`Attempting to find spot with id: ${spotId}`);
+    const spot = await Spot.findByPk(spotId);
+    
+    if (!spot) {
+      console.log(`Spot with id ${spotId} not found`);
+      return res.status(404).json({ message: "Spot couldn't be found" });
+    }
+
+    console.log(`Spot found:`, spot.toJSON());
+
+    console.log(`Checking ownership for user ${req.user.id}`);
+    if (spot.ownerId !== req.user.id) {
+      console.log(`Ownership check failed`);
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    console.log(`Updating spot data`);
+    const { address, city, state, country, lat, lng, name, description, price } = req.body;
+    
+    await spot.update({
+      address,
+      city,
+      state,
+      country,
+      lat,
+      lng,
+      name,
+      description,
+      price
+    });
+
+    console.log(`Spot updated, fetching latest data`);
+    const updatedSpot = await Spot.findByPk(spotId);
+
+    console.log(`Sending response`);
+    res.json(updatedSpot);
+
+  } catch (error) {
+    console.error(`Error in PUT /spots/${spotId}:`, error);
+    next(error);
+  }
+
+  console.log(`PUT request for spot ${spotId} completed`);
+});
 
 //GET all spots by current user
 router.get('/current', requireAuth, async (req, res) => {

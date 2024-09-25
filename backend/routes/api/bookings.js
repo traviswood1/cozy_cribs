@@ -4,21 +4,50 @@ const { Booking, Spot, User } = require('../../db/models');
 const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
 const { requireAuth } = require('../../utils/auth');
+const { Op } = require('sequelize');
+const { validationResult } = require('express-validator');
 
 const validateBooking = [
-    check('spotId')
+    check('bookingId')
       .exists({ checkFalsy: true })
-      .withMessage('Spot couldn\'t be found'),
+      .withMessage('Booking couldn\'t be found')
+      .custom(async (value, { req }) => {
+        const booking = await Booking.findByPk(value);
+        if (!booking) {
+          throw new Error('Booking couldn\'t be found');
+        }
+        req.booking = booking; // Store the booking for later use
+        return true;
+      }),
     check('startDate')
       .exists({ checkFalsy: true })
       .withMessage('Start date is required')
       .isDate()
       .withMessage('Start date must be a valid date')
-      .custom((value, { req }) => {
+      .custom(async (value, { req }) => {
         const startDate = new Date(value);
-        const currentDate = new Date();
-        if (startDate < currentDate) {
-          throw new Error('startDate cannot be in the past');
+        const endDate = new Date(req.body.endDate);
+        const spotId = req.booking.spotId; // Use the spotId from the found booking
+
+        const overlappingBookings = await Booking.findOne({
+          where: {
+            spotId,
+            id: { [Op.ne]: req.params.bookingId }, // Exclude the current booking
+            [Op.or]: [
+              { startDate: { [Op.between]: [startDate, endDate] } },
+              { endDate: { [Op.between]: [startDate, endDate] } },
+              { 
+                [Op.and]: [
+                  { startDate: { [Op.lte]: startDate } },
+                  { endDate: { [Op.gte]: endDate } }
+                ]
+              }
+            ]
+          }
+        });
+
+        if (overlappingBookings) {
+          throw new Error('Sorry, this spot is already booked for the specified dates');
         }
         return true;
       }),
@@ -26,35 +55,21 @@ const validateBooking = [
       .exists({ checkFalsy: true })
       .withMessage('End date is required')
       .isDate()
-      .withMessage('End date must be a valid date')
-      .custom((value, { req }) => {
-        const endDate = new Date(value);
-        const startDate = new Date(req.body.startDate);
-        if (endDate <= startDate) {
-          throw new Error('endDate cannot be on or before startDate');
-        } 
-        return true;
-      }),
-    check('startDate').custom(async (value, { req }) => {
-      const startDate = new Date(value);
-      const endDate = new Date(req.body.endDate);
-      const spotId = req.params.spotId;
-  
-      const overlappingBookings = await Booking.findOne({
-        where: {
-          spotId,
-          [Op.or]: [
-            { startDate: { [Op.between]: [startDate, endDate] } },
-            { endDate: { [Op.between]: [startDate, endDate] } },
-            { [Op.and]: [
-              { startDate: { [Op.lte]: startDate } },
-              { endDate: { [Op.gte]: endDate } }
-            ]}
-          ]
-        }
-      });
-    }),
-    handleValidationErrors
+      .withMessage('End date must be a valid date'),
+    (req, res, next) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        const errorObj = {
+          message: "Sorry, this spot is already booked for the specified dates",
+          errors: {}
+        };
+        errors.array().forEach(error => {
+          errorObj.errors[error.param] = error.msg;
+        });
+        return res.status(403).json(errorObj);
+      }
+      next();
+    }
 ];
 
 // Get all of the Current User's Bookings
@@ -91,30 +106,41 @@ router.get('/current', async (req, res) => {
 });
 
 // Edit a Booking based on the Booking's id
-router.put('/:bookingId', async (req, res) => {
+router.put('/:bookingId', requireAuth, validateBooking, async (req, res) => {
   const { user } = req;
-  const { spotId, startDate, endDate } = req.body;
-  const booking = await Booking.findByPk(req.params.bookingId);
-  if (!booking) {
-    const err = new Error('Booking not found');
-    err.status = 404;
-    throw err;
-  }
+  const { startDate, endDate } = req.body;
+  const booking = req.booking; // Use the booking stored during validation
+
   if (booking.userId !== user.id) {
-    const err = new Error('Forbidden');
-    err.status = 403;
-    throw err;
+    return res.status(403).json({ message: "Forbidden" });
   }
-  if (startDate >= endDate) {
-    const err = new Error('Bad Request');
-    err.status = 400;
-    throw err;
+
+  const currentDate = new Date();
+  const bookingEndDate = new Date(booking.endDate);
+  const newStartDate = new Date(startDate);
+  const newEndDate = new Date(endDate);
+
+  if (bookingEndDate < currentDate) {
+    return res.status(403).json({ message: "Past bookings can't be modified" });
   }
-  const updatedBooking = await booking.update({
-    startDate,
-    endDate
-  });
-  res.json({ Booking: updatedBooking });
+
+  try {
+    const updatedBooking = await booking.update({
+      startDate: newStartDate,
+      endDate: newEndDate
+    });
+    res.json({
+      id: updatedBooking.id,
+      spotId: updatedBooking.spotId,
+      userId: updatedBooking.userId,
+      startDate: updatedBooking.startDate.toISOString().split('T')[0],
+      endDate: updatedBooking.endDate.toISOString().split('T')[0],
+      createdAt: updatedBooking.createdAt.toISOString(),
+      updatedAt: updatedBooking.updatedAt.toISOString()
+    });
+  } catch (error) {
+    res.status(400).json({ message: "Bad Request", errors: error.errors });
+  }
 });
 
 // Delete a Booking based on the Booking's id

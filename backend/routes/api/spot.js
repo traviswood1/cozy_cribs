@@ -138,8 +138,65 @@ router.post('/:spotId/bookings', requireAuth, validateBooking, async (req, res) 
 
   return res.status(201).json(response);
 });
-  
 
+// Get all Bookings for a Spot based on the SpotId
+router.get('/:spotId/bookings', requireAuth, async (req, res) => {
+  const spotId = req.params.spotId;
+  const spot = await Spot.findByPk(spotId);
+  
+  if (!spot) {
+    return res.status(404).json({ message: "Spot couldn't be found" });
+  }
+
+  const isOwner = spot.ownerId === req.user.id;
+  
+  let bookings;
+  if (isOwner) {
+    bookings = await Booking.findAll({
+      where: { spotId },
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'firstName', 'lastName']
+        }
+      ]
+    });
+  } else {
+    bookings = await Booking.findAll({
+      where: { spotId },
+      attributes: ['spotId', 'startDate', 'endDate']
+    });
+  }
+
+  const formattedBookings = bookings.map(booking => {
+    const bookingJSON = booking.toJSON();
+    if (isOwner) {
+      return {
+        User: {
+          id: bookingJSON.User.id,
+          firstName: bookingJSON.User.firstName,
+          lastName: bookingJSON.User.lastName
+        },
+        id: bookingJSON.id,
+        spotId: bookingJSON.spotId,
+        userId: bookingJSON.userId,
+        startDate: bookingJSON.startDate,
+        endDate: bookingJSON.endDate,
+        createdAt: bookingJSON.createdAt,
+        updatedAt: bookingJSON.updatedAt
+      };
+    } else {
+      return {
+        spotId: bookingJSON.spotId,
+        startDate: bookingJSON.startDate,
+        endDate: bookingJSON.endDate
+      };
+    }
+  });
+
+  res.json({ Bookings: formattedBookings });  
+});
+  
 //POST a new spot image
 router.post('/:spotId/images', requireAuth, async (req, res) => {
   const { url, preview } = req.body;

@@ -90,25 +90,6 @@ router.get('/current', async (req, res) => {
   res.json({ Bookings: formattedBookings });
 });
 
-// Create a Booking from a Spot based on the Spot's id
-router.post('/', async (req, res) => {
-  const { user } = req;
-  const { spotId, startDate, endDate } = req.body;
-  const spot = await Spot.findByPk(spotId);
-  if (!spot) {
-    const err = new Error('Spot not found');
-    err.status = 404;
-    throw err;
-  }
-  const booking = await Booking.create({
-    spotId,
-    userId: user.id,
-    startDate,
-    endDate
-  });
-  res.status(201).json({ Booking: booking });
-});
-
 // Edit a Booking based on the Booking's id
 router.put('/:bookingId', async (req, res) => {
   const { user } = req;

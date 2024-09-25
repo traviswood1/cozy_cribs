@@ -100,6 +100,12 @@ Spot.init(
         }
       },
     },
+    previewImage: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return this.getDataValue('images')?.find(image => image.preview === true)?.url || null;
+      },
+    },
   //   avgStarRating: {
   //     type: DataTypes.VIRTUAL,
   // },  

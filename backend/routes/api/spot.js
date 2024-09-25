@@ -54,7 +54,7 @@ const validateBooking = [
     .withMessage('Start date is required')
     .isDate()
     .withMessage('Start date must be a valid date')
-    .custom((value) => {
+    .custom((value, { req }) => {
       const startDate = new Date(value);
       const currentDate = new Date();
       if (startDate < currentDate) {
@@ -95,7 +95,13 @@ const validateBooking = [
     });
 
     if (overlappingBookings) {
-      throw new Error('Sorry, this spot is already booked for the specified dates');
+      if (startDate >= overlappingBookings.startDate && startDate <= overlappingBookings.endDate) {
+        throw new Error('Start date conflicts with an existing booking');
+      }
+      if (endDate >= overlappingBookings.startDate && endDate <= overlappingBookings.endDate) {
+        throw new Error('End date conflicts with an existing booking');
+      }
+      throw new Error('Booking conflicts with an existing booking');
     }
     return true;
   }),

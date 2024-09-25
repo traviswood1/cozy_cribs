@@ -1,11 +1,11 @@
 const express = require('express');
+const { Spot, Booking, User, Review, SpotImage, ReviewImage } = require('../../db/models');
 const router = express.Router();
 const { requireAuth } = require('../../utils/auth');
 const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
 const { Op } = require('sequelize');
 const { validationResult } = require('express-validator');
-const { Review, SpotImage, ReviewImage, User, Spot } = require('../../db/models');
 
 const validateSpot = [
   check('address')
@@ -45,12 +45,94 @@ const validateSpot = [
   handleValidationErrors
 ];
 
+const validateBooking = [
+  check('spotId')
+    .exists({ checkFalsy: true })
+    .withMessage('Spot couldn\'t be found'),
+  check('startDate')
+    .exists({ checkFalsy: true })
+    .withMessage('Start date is required')
+    .isDate()
+    .withMessage('Start date must be a valid date')
+    .custom((value) => {
+      const startDate = new Date(value);
+      const currentDate = new Date();
+      if (startDate < currentDate) {
+        throw new Error('startDate cannot be in the past');
+      }
+      return true;
+    }),
+  check('endDate')
+    .exists({ checkFalsy: true })
+    .withMessage('End date is required')
+    .isDate()
+    .withMessage('End date must be a valid date')
+    .custom((value, { req }) => {
+      const endDate = new Date(value);
+      const startDate = new Date(req.body.startDate);
+      if (endDate <= startDate) {
+        throw new Error('endDate cannot be on or before startDate');
+      } 
+      return true;
+    }),
+  check('startDate').custom(async (value, { req }) => {
+    const startDate = new Date(value);
+    const endDate = new Date(req.body.endDate);
+    const spotId = req.params.spotId;
+
+    const overlappingBookings = await Booking.findOne({
+      where: {
+        spotId,
+        [Op.or]: [
+          { startDate: { [Op.between]: [startDate, endDate] } },
+          { endDate: { [Op.between]: [startDate, endDate] } },
+          { [Op.and]: [
+            { startDate: { [Op.lte]: startDate } },
+            { endDate: { [Op.gte]: endDate } }
+          ]}
+        ]
+      }
+    });
+
+    if (overlappingBookings) {
+      throw new Error('Sorry, this spot is already booked for the specified dates');
+    }
+    return true;
+  }),
+  handleValidationErrors
+];
+
 // Helper function to calculate average rating
 const calculateAverageRating = (reviews) => {
   if (reviews.length === 0) return null;
   const sum = reviews.reduce((acc, review) => acc + review.stars, 0);
   return (sum / reviews.length).toFixed(1);
 };
+
+//Create a booking from a spot based on the spot's id
+router.post('/:spotId/bookings', requireAuth, validateBooking, async (req, res) => {
+  const { startDate, endDate } = req.body;
+  const spot = await Spot.findByPk(req.params.spotId);
+  if (!spot) {
+    return res.status(404).json({ message: "Spot couldn't be found" });
+  }
+
+  if (spot.ownerId === req.user.id) {
+    return res.status(403).json({ message: "Forbidden" });
+  }
+
+  const booking = await Booking.create({
+    spotId: req.params.spotId,
+    userId: req.user.id,
+    startDate,
+    endDate
+  });
+
+  const response = booking.toJSON();
+
+  return res.status(201).json(response);
+});
+  
 
 //POST a new spot image
 router.post('/:spotId/images', requireAuth, async (req, res) => {

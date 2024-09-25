@@ -1,10 +1,11 @@
 const express = require('express');
-const { Spot } = require('../../db/models');
 const router = express.Router();
 const { requireAuth } = require('../../utils/auth');
-const { User } = require('../../db/models');
 const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
+const { Op } = require('sequelize');
+const { validationResult } = require('express-validator');
+const { Review, SpotImage, ReviewImage, User, Spot } = require('../../db/models');
 
 const validateSpot = [
   check('address')
@@ -43,9 +44,6 @@ const validateSpot = [
     .withMessage('Price must be a postive number'),
   handleValidationErrors
 ];
-const { Review, SpotImage } = require('../../db/models');
-const { Op } = require('sequelize');
-const { validationResult } = require('express-validator');
 
 // Helper function to calculate average rating
 const calculateAverageRating = (reviews) => {
@@ -292,6 +290,55 @@ const validateReview = [
     .isInt({ min: 1, max: 5 })
     .withMessage('Stars must be an integer from 1 to 5'),
 ];
+
+//Get all Reviews by a Spot's id
+router.get('/:spotId/reviews', async (req, res) => {
+  const spotId = req.params.spotId;
+  
+  const spot = await Spot.findByPk(spotId);
+  if (!spot) {
+    return res.status(404).json({
+      message: "Spot couldn't be found"
+    });
+  }
+  
+  const reviews = await Review.findAll({
+    where: { spotId },
+    include: [
+      {
+        model: User,
+        attributes: ['id', 'firstName', 'lastName'] 
+      },
+      {
+        model: ReviewImage,
+        attributes: ['id', 'url']
+      }
+    ]
+  }); 
+
+  const formattedReviews = reviews.map(review => {
+    const reviewJSON = review.toJSON();
+    return {
+      id: reviewJSON.id,
+      userId: reviewJSON.userId,
+      spotId: reviewJSON.spotId,
+      review: reviewJSON.review,
+      stars: reviewJSON.stars,
+      createdAt: reviewJSON.createdAt,
+      updatedAt: reviewJSON.updatedAt,
+      User: {
+        id: reviewJSON.User.id,
+        firstName: reviewJSON.User.firstName,
+        lastName: reviewJSON.User.lastName
+      },
+      ReviewImages: reviewJSON.ReviewImages ? reviewJSON.ReviewImages.map(image => ({
+        id: image.id,
+        url: image.url
+      })) : []
+    };
+  });
+ res.json({ Reviews: formattedReviews });
+});
 
 // CREATE a review for a spot based on the spot's id
 router.post('/:spotId/reviews', requireAuth, validateReview, async (req, res) => {

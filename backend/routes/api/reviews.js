@@ -70,13 +70,9 @@ router.delete('/:reviewId', requireAuth, async (req, res) => {
   if (!review) {
     return res.status(404).json({ message: "Review couldn't be found" });
   } 
-
-  // Check if the current user is the owner of the review
   if(review.userId !== req.user.id) {
     return res.status(403).json({ message: "Forbidden", statusCode: 403 });
   }
-
-  // Delete the review
   await review.destroy(); 
   return res.status(200).json({ message: "Successfully deleted" });
 }); 

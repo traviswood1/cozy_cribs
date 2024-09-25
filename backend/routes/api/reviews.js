@@ -63,6 +63,35 @@ router.post('/:reviewId/images', requireAuth, async (req, res) => {
   }
 });
 
+// Validation middleware
+const validateReview = [
+  check('review')
+    .notEmpty()
+    .withMessage('Review text is required'),
+  check('stars')
+    .isInt({ min: 1, max: 5 })
+    .withMessage('Stars must be an integer from 1 to 5'),
+  handleValidationErrors
+];
+
+//EDIT a Review
+router.put('/:reviewId', requireAuth, validateReview, async (req, res) => {
+  const { reviewId } = req.params;
+  const { review: reviewText, stars } = req.body;
+
+  const review = await Review.findByPk(reviewId);
+  if (!review) {
+    return res.status(404).json({ message: "Review couldn't be found" });
+  }
+  if(review.userId !== req.user.id) {
+    return res.status(403).json({ message: "Forbidden", statusCode: 403 });
+  }
+  review.review = reviewText;
+  review.stars = stars;
+  await review.save();
+  return res.json({ id: review.id, userId: review.userId, spotId: review.spotId, review: review.review, stars: review.stars, createdAt: review.createdAt, updatedAt: review.updatedAt });
+});       
+
 //DELETE a Review
 router.delete('/:reviewId', requireAuth, async (req, res) => {
   const { reviewId } = req.params;

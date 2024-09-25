@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('../../utils/auth');
-const { check } = require('express-validator');
+const { check, validationResult } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
 const { Review, ReviewImage, User, Spot } = require('../../db/models');
 
@@ -21,6 +21,7 @@ router.get('/current', requireAuth, async (req, res) => {
   });
   return res.json({ Reviews: reviews });
 });
+
 
 module.exports = router;
 

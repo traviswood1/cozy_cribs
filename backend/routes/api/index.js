@@ -19,7 +19,15 @@ router.use('/spots', spotRouter);
 
 router.use('/reviews', reviewsRouter);
 router.post('/test', (req, res) => {
+    console.log(`Received ${req.method} request to ${req.path}`);
+  next();
   res.json({ requestBody: req.body });
 });
+// app.use((req, res, next) => {
+//   console.log(`Received ${req.method} request to ${req.path}`);
+//   next();
+// });
+
+
 
 module.exports = router;

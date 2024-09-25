@@ -45,6 +45,7 @@ const validateSpot = [
 ];
 const { Review, SpotImage } = require('../../db/models');
 const { Op } = require('sequelize');
+const { validationResult } = require('express-validator');
 
 // Helper function to calculate average rating
 const calculateAverageRating = (reviews) => {
@@ -229,6 +230,66 @@ router.delete('/:spotId', requireAuth, async (req, res) => {
   } 
   await spot.destroy();
   return res.json({ message: "Successfully deleted" });
+});
+
+// Validation middleware
+const validateReview = [
+  check('review')
+    .notEmpty()
+    .withMessage('Review text is required'),
+  check('stars')
+    .isInt({ min: 1, max: 5 })
+    .withMessage('Stars must be an integer from 1 to 5'),
+];
+
+// CREATE a review for a spot based on the spot's id
+router.post('/:spotId/reviews', requireAuth, validateReview, async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const errorObj = {};
+    errors.array().forEach(error => {
+      errorObj[error.path] = error.msg;
+    });
+    
+    return res.status(400).json({
+      message: "Bad Request",
+      errors: errorObj
+    });
+  }
+
+  const { user } = req;
+  const { spotId } = req.params;
+  const { review, stars } = req.body;
+
+  try {
+    // Check if the spot exists
+    const spot = await Spot.findByPk(spotId);
+    if (!spot) {
+      return res.status(404).json({ message: "Spot couldn't be found" });
+    }
+
+    // Check if the user already has a review for this spot
+    const existingReview = await Review.findOne({
+      where: { userId: user.id, spotId }
+    });
+    if (existingReview) {
+      return res.status(500).json({ message: "User already has a review for this spot" });
+    }
+
+    const newReview = await Review.create({ 
+      userId: user.id, 
+      spotId, 
+      review, 
+      stars, 
+      createdAt: new Date(), 
+      updatedAt: new Date() 
+    });
+
+    return res.status(201).json(newReview);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "An error occurred while creating the review" });
+  }
 });
 
 module.exports = router;

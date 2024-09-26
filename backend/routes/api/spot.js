@@ -289,10 +289,22 @@ router.get('/', validateQueryParams, async (req, res) => {
 
     const spotsWithRatings = spots.map(spot => {
       const plainSpot = spot.get({ plain: true });
-      const { Reviews, SpotImages, ...spotWithoutReviews } = plainSpot;
+      const { Reviews, SpotImages, lat, lng, price, ...spotWithoutReviews } = plainSpot;
       return {
-        ...spotWithoutReviews,
-        avgRating: calculateAverageRating(Reviews),
+        id: spotWithoutReviews.id,
+        ownerId: spotWithoutReviews.ownerId,
+        address: spotWithoutReviews.address,
+        city: spotWithoutReviews.city,
+        state: spotWithoutReviews.state,
+        country: spotWithoutReviews.country,
+        lat: parseFloat(spotWithoutReviews.lat),
+        lng: parseFloat(spotWithoutReviews.lng),
+        name: spotWithoutReviews.name,
+        description: spotWithoutReviews.description,
+        price: parseFloat(spotWithoutReviews.price),
+        createdAt: spotWithoutReviews.createdAt,
+        updatedAt: spotWithoutReviews.updatedAt,
+        avgRating: parseFloat(calculateAverageRating(Reviews)),
         previewImage: spot.SpotImages[0]?.url || null
       };
     });

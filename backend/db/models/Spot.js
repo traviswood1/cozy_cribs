@@ -50,7 +50,7 @@ Spot.init(
       allowNull: false,
     },
     lat: {
-      type: DataTypes.DECIMAL(8, 6),
+      type: DataTypes.FLOAT,
       allowNull: false,
       validate: {
         isDecimal: true,
@@ -64,7 +64,7 @@ Spot.init(
       },
     },
     lng: {
-      type: DataTypes.DECIMAL(9, 6),
+      type: DataTypes.FLOAT,
       allowNull: false,
       validate: {
         isDecimal: true,
@@ -90,7 +90,7 @@ Spot.init(
       allowNull: false,
     },
     price: {
-      type: DataTypes.DECIMAL(10, 2),
+      type: DataTypes.FLOAT,
       allowNull: false,
       validate: {
         isDecimal: true,
@@ -105,13 +105,7 @@ Spot.init(
       get() {
         return this.getDataValue('images')?.find(image => image.preview === true)?.url || null;
       },
-    },
-  //   avgStarRating: {
-  //     type: DataTypes.VIRTUAL,
-  // },  
-  // SpotImages: {
-  //   type: DataTypes.VIRTUAL,
-    // },  
+    },  
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,

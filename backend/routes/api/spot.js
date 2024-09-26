@@ -294,9 +294,7 @@ router.get('/', validateQueryParams, async (req, res) => {
     const spotsWithRatings = spots.map(spot => {
       const plainSpot = spot.get({ plain: true });
       const { Reviews, SpotImages, lat, lng, price, ...spotWithoutReviews } = plainSpot;
-      lat = Number(lat);
-      lng = Number(lng);
-      price = Number(price);
+
       return {
         id: spotWithoutReviews.id,
         ownerId: spotWithoutReviews.ownerId,
@@ -304,11 +302,11 @@ router.get('/', validateQueryParams, async (req, res) => {
         city: spotWithoutReviews.city,
         state: spotWithoutReviews.state,
         country: spotWithoutReviews.country,
-        lat: lat,
-        lng: lng,
+        lat: spotWithoutReviews.lat,
+        lng: spotWithoutReviews.lng,
         name: spotWithoutReviews.name,
         description: spotWithoutReviews.description,
-        price: price,
+        price: spotWithoutReviews.price,
         createdAt: spotWithoutReviews.createdAt,
         updatedAt: spotWithoutReviews.updatedAt,
         avgRating: parseFloat(calculateAverageRating(Reviews)),

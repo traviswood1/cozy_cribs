@@ -34,7 +34,7 @@ router.post('/:reviewId/images', requireAuth, async (req, res) => {
     }
 
     // Check if the current user is the owner of the review
-    if(review.userId !== user.id) {
+    if(review.userId !== req.user.id) {
       return res.status(403).json({ message: "Forbidden", statusCode: 403 });
     }
 

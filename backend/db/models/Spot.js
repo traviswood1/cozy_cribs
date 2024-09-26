@@ -50,7 +50,7 @@ Spot.init(
       allowNull: false,
     },
     lat: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.DECIMAL(8, 6),
       allowNull: false,
       validate: {
         isDecimal: true,
@@ -64,7 +64,7 @@ Spot.init(
       },
     },
     lng: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.DECIMAL(9, 6),
       allowNull: false,
       validate: {
         isDecimal: true,
@@ -90,7 +90,7 @@ Spot.init(
       allowNull: false,
     },
     price: {
-      type: DataTypes.FLOAT,
+      type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       validate: {
         isDecimal: true,

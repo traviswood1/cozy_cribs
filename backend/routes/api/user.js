@@ -45,8 +45,9 @@ router.post(
 
       await setTokenCookie(res, safeUser);
 
-      return res.json({
-        user: safeUser
+      return res.status(201).json({
+        user: safeUser,
+        message: "Created"
       });
     } catch (error) {
       if (error.name === 'SequelizeUniqueConstraintError') {

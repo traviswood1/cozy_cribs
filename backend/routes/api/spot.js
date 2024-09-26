@@ -196,13 +196,17 @@ router.get('/:spotId/bookings', requireAuth, async (req, res) => {
   res.json({ Bookings: formattedBookings });  
 });
   
-//POST a new spot image
+//POST Add an Image to a Spot based on the Spot's id
 router.post('/:spotId/images', requireAuth, async (req, res) => {
   const { url, preview } = req.body;
 
   const spot = await Spot.findByPk(req.params.spotId);
   if (!spot) {
     return res.status(404).json({ message: "Spot couldn't be found" });
+  }
+
+  if (spot.ownerId !== req.user.id) {
+    return res.status(403).json({ message: "Forbidden" });
   }
 
   const newSpotImage = await SpotImage.create({
@@ -217,7 +221,7 @@ router.post('/:spotId/images', requireAuth, async (req, res) => {
   delete response.createdAt;
   delete response.updatedAt;
 
-  return res.json(response);
+  return res.status(201).json(response);
 });
 
 // Validation middleware for query parameters
@@ -290,7 +294,9 @@ router.get('/', validateQueryParams, async (req, res) => {
     const spotsWithRatings = spots.map(spot => {
       const plainSpot = spot.get({ plain: true });
       const { Reviews, SpotImages, lat, lng, price, ...spotWithoutReviews } = plainSpot;
-      
+      lat = Number(lat);
+      lng = Number(lng);
+      price = Number(price);
       return {
         id: spotWithoutReviews.id,
         ownerId: spotWithoutReviews.ownerId,
@@ -298,11 +304,11 @@ router.get('/', validateQueryParams, async (req, res) => {
         city: spotWithoutReviews.city,
         state: spotWithoutReviews.state,
         country: spotWithoutReviews.country,
-        lat: Number(spotWithoutReviews.lat),
-        lng: Number(spotWithoutReviews.lng),
+        lat: lat,
+        lng: lng,
         name: spotWithoutReviews.name,
         description: spotWithoutReviews.description,
-        price: Number(spotWithoutReviews.price),
+        price: price,
         createdAt: spotWithoutReviews.createdAt,
         updatedAt: spotWithoutReviews.updatedAt,
         avgRating: parseFloat(calculateAverageRating(Reviews)),

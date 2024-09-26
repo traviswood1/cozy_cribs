@@ -290,6 +290,7 @@ router.get('/', validateQueryParams, async (req, res) => {
     const spotsWithRatings = spots.map(spot => {
       const plainSpot = spot.get({ plain: true });
       const { Reviews, SpotImages, lat, lng, price, ...spotWithoutReviews } = plainSpot;
+      
       return {
         id: spotWithoutReviews.id,
         ownerId: spotWithoutReviews.ownerId,
@@ -297,11 +298,11 @@ router.get('/', validateQueryParams, async (req, res) => {
         city: spotWithoutReviews.city,
         state: spotWithoutReviews.state,
         country: spotWithoutReviews.country,
-        lat: parseFloat(spotWithoutReviews.lat),
-        lng: parseFloat(spotWithoutReviews.lng),
+        lat: Number(spotWithoutReviews.lat),
+        lng: Number(spotWithoutReviews.lng),
         name: spotWithoutReviews.name,
         description: spotWithoutReviews.description,
-        price: parseFloat(spotWithoutReviews.price),
+        price: Number(spotWithoutReviews.price),
         createdAt: spotWithoutReviews.createdAt,
         updatedAt: spotWithoutReviews.updatedAt,
         avgRating: parseFloat(calculateAverageRating(Reviews)),
@@ -376,17 +377,28 @@ router.get('/current', requireAuth, async (req, res) => {
   const userId = req.user.id;
   const spots = await Spot.findAll({
     where: { ownerId: userId },
-    include:      
+    include: [
       {
         model: User,
         attributes: ['id', 'firstName', 'lastName']
+      },
+      {
+        model: Review,
+        attributes: ['stars']
+      },
+      {
+        model: SpotImage,
+        attributes: ['url'],
+        where: { preview: true },
+        required: false,
+        limit: 1
       }
-    
+    ]
   });
 
   const formattedSpots = spots.map(spot => {
     const plainSpot = spot.get({ plain: true });
-    const { User, ...spotData } = plainSpot;
+    const { User, Reviews, SpotImages, ...spotData } = plainSpot;
 
     return {
       id: spotData.id,
@@ -401,14 +413,16 @@ router.get('/current', requireAuth, async (req, res) => {
       description: spotData.description,
       price: spotData.price,
       createdAt: spotData.createdAt,
-      updatedAt: spotData.updatedAt
+      updatedAt: spotData.updatedAt,
+      avgRating: parseFloat(calculateAverageRating(Reviews)),
+      previewImage: spotData.previewImage
     };
   });
 
   res.json({ Spots: formattedSpots });
 });
 
-//GET details of a Spot from an id
+//GET details of a Spot from spotId
 router.get('/:spotId', async (req, res) => {
   try {
     const spot = await Spot.findByPk(req.params.spotId, {
@@ -479,7 +493,7 @@ router.post('/', requireAuth, validateSpot, async (req, res) => {
     description,
     price
   });
-  return res.json(newSpot);
+  return res.status(201).json(newSpot);
 });
 
 //Delete a spot 

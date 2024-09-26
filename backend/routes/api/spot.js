@@ -293,7 +293,7 @@ router.get('/', validateQueryParams, async (req, res) => {
 
     const spotsWithRatings = spots.map(spot => {
       const plainSpot = spot.get({ plain: true });
-      const { Reviews, SpotImages, lat, lng, price, ...spotWithoutReviews } = plainSpot;
+      const { Reviews, SpotImages, ...spotWithoutReviews } = plainSpot;
 
       return {
         id: spotWithoutReviews.id,

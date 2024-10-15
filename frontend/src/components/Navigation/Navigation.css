@@ -16,6 +16,7 @@ ul {
     list-style-type: none;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 10px;
     margin: 0;
     width: 100%;
@@ -43,20 +44,27 @@ ul {
     font-size: 24px;
     cursor: pointer;
     margin-right: 20px;
+    color: #333; /* Add a default color */
+    transition: color 0.3s ease; /* Smooth color transition on hover */
+}
+
+.profile-icon:hover {
+    color: #555; /* Change color on hover */
 }
 
 .profile-dropdown {
     position: absolute;
     display: flex;
     flex-direction: column;
-    width: 25%;
-    top: 50px; /* Adjust based on your navbar height */
+    width: 200px; /* Fixed width instead of percentage */
+    top: 110%; /* Align to bottom of icon */
     right: 0;
     background-color: white;
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 10px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 1; /* Ensure it appears above other content */
 }
 
 .profile-dropdown.hidden {
@@ -65,6 +73,11 @@ ul {
 
 .profile-dropdown li {
     padding: 5px 0;
+    cursor: pointer;
+}
+
+.profile-dropdown li:hover {
+    background-color: #f0f0f0;
 }
 
 .profile-dropdown button {
@@ -101,3 +114,18 @@ ul {
     border: 2px solid black;
 }
 
+.profile-dropdown .user-info {
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+}
+
+.profile-dropdown .user-info li {
+    padding: 2px 0;
+}
+
+.profile-icon-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}

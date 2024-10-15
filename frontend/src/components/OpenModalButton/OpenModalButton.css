@@ -1,0 +1,23 @@
+.open-modal-button {
+
+    background-color: #2e2e2e;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .open-modal-button:hover {
+    background-color: #ffffff;
+    color: black;
+    border: 2px solid black;
+  }
+  
+  .open-modal-button:active {
+    background-color: #000000;
+    color: white;
+    border: 2px solid black;
+}

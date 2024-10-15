@@ -35,8 +35,8 @@ input {
     border-radius: 5px;
 }
 
-button {
-    width: 50%;
+button.login-button {
+    width: 15%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;

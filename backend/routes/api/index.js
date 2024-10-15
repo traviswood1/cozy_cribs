@@ -29,7 +29,7 @@ router.use('/review-images', reviewImagesRouter);
 
 router.post('/test', (req, res) => {
     console.log(`Received ${req.method} request to ${req.path}`);
-  next();
+  // next();
   res.json({ requestBody: req.body });
 });
 

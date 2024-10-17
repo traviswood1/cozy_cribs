@@ -36,6 +36,7 @@ function ProfileButton({ user }) {
     e.preventDefault();
     dispatch(sessionActions.logout());
     closeMenu();
+    window.location.href = '/';
   };
 
   const ulClassName = "profile-dropdown" + (showMenu ? "" : " hidden");
@@ -45,31 +46,33 @@ function ProfileButton({ user }) {
       <FaUserCircle 
         className="profile-icon"
         onClick={toggleMenu} 
-        size={24} 
+        size={36} 
       />
       <ul className={ulClassName} ref={ulRef}>
         {user ? (
           <>
             <div className="user-info">
-              <li>{user.username}</li>
-              <li>{user.firstName} {user.lastName}</li>
+              <li>Hello, {user.username}</li>
               <li>{user.email}</li>
             </div>
+              <a className='manage-spots-link' href='/spots/current'>
+                Manage Spots
+              </a>
             <li>
               <button onClick={logout} className="logout-button">Log Out</button>
             </li>
           </>
         ) : (
           <>
+              <OpenModalMenuItem
+                itemText="Sign Up"
+                onItemClick={closeMenu}
+                modalComponent={<SignupFormModal />}
+              />
             <OpenModalMenuItem
               itemText="Log In"
               onItemClick={closeMenu}
               modalComponent={<LoginFormModal />}
-            />
-            <OpenModalMenuItem
-              itemText="Sign Up"
-              onItemClick={closeMenu}
-              modalComponent={<SignupFormModal />}
             />
           </>
         )}

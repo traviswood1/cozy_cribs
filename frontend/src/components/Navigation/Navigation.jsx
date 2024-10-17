@@ -8,8 +8,16 @@ function Navigation({ isLoaded }) {
 
   return (
     <ul>
+      <li className="logo-container">
+        <NavLink to="/">
+          <img src="/public/favicons/cozy-icon-96.png" alt="Cozy Cribs" />
+          <h1 className="logo">Cozy Cribs</h1>
+        </NavLink>
+      </li>
       <li>
-        <NavLink to="/">Home</NavLink>
+        <NavLink to="/spots/new">
+          <button className="create-spot-button">Create a New Spot</button>
+        </NavLink>
       </li>
       {isLoaded && (
         <li>

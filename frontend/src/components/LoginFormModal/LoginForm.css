@@ -18,6 +18,7 @@ form {
     align-items: center;
     justify-content: center;
     gap: 20px;
+    width: 100%; /* Ensure the form takes full width */
 }
 
 label {
@@ -26,6 +27,7 @@ label {
     align-items: center;
     justify-content: center;
     gap: 5px;
+    width: 90%;
 }
 
 input {
@@ -42,6 +44,7 @@ button.login-button {
     border-radius: 5px;
     background-color: #000;
     color: #fff;
+    width: 90%;
 }
 
 button:hover {
@@ -55,3 +58,47 @@ button:active {
     color: #fff;
 }
 
+button.login-button:disabled {
+    background-color: #ccc;
+    color: #fff;
+    cursor: not-allowed;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+button.demo-login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #333;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 10px;
+    width: 100%; /* Make the button take full width of its container */
+    /* Remove any default button styles */
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.manage-spots-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #333;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 18px;
+    width: 100%; /* Make the button take full width of its container */
+}
+
+.manage-spots-link:hover {
+    color: #000;
+    text-decoration: underline;
+}

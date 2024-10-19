@@ -9,8 +9,7 @@ import { fetchReviewsBySpotId } from '../../store/spotReviews';
 const SpotDetails = () => {
     const { spotId } = useParams();
     const dispatch = useDispatch();
-    const spot = useSelector(state => state.spots?.currentSpot || null);
-    const spotImages = useSelector(state => state.spotImages?.allSpotImages || []);
+    const { spot } = useSelector((state) => state.spots);
     const reviewsData = useSelector(state => {
         console.log('Full Redux State:', state);
         console.log('SpotReviews State:', state.spotReviews);

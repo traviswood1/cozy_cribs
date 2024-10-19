@@ -1,10 +1,23 @@
 import { csrfFetch } from './csrf';
 
 const SET_REVIEWS = 'reviews/setReviews';
+const ADD_REVIEW = 'reviews/addReview';
+const UPDATE_REVIEW = 'reviews/updateReview';
+const DELETE_REVIEW = 'reviews/deleteReview';
 
 export const setReviews = (reviews) => ({
     type: SET_REVIEWS,
     reviews
+});
+
+export const addReview = (review) => ({
+    type: ADD_REVIEW,
+    review,
+});
+
+export const updateReview = (review) => ({
+    type: UPDATE_REVIEW,
+    review,
 });
 
 export const fetchReviewsBySpotId = (spotId) => async (dispatch) => {
@@ -40,10 +53,10 @@ export const editReview = (reviewId, reviewData) => async (dispatch) => {
 };
 
 export const deleteReview = (reviewId) => async (dispatch) => {
-    const response = await csrfFetch(`/api/reviews/${reviewId}`, {
+    await csrfFetch(`/api/reviews/${reviewId}`, {
         method: 'DELETE'
     });
-    dispatch(deleteReview(reviewId));
+    dispatch({ type: 'DELETE_REVIEW', reviewId });
 };
 
 const initialState = {
@@ -53,15 +66,15 @@ const initialState = {
 const spotReviewsReducer = (state = initialState, action) => {
     switch (action.type) {
         case SET_REVIEWS:
-            console.log('Setting reviews in reducer:', action.reviews);
             return { ...state, Reviews: action.reviews };
+        case DELETE_REVIEW:
+            return {
+                ...state,
+                Reviews: state.Reviews.filter(review => review.id !== action.reviewId)
+            };
         default:
             return state;
     }
 };
 
 export default spotReviewsReducer;
-
-
-
-

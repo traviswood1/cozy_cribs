@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import * as sessionActions from '../../store/session';
 import { useDispatch } from 'react-redux';
 import { useModal } from '../../context/Modal';
@@ -10,41 +10,35 @@ function LoginFormModal() {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [isFormValid, setIsFormValid] = useState(false);
-  const [loginError, setLoginError] = useState("");
   const { closeModal } = useModal();
-  const [isDemoLogin, setIsDemoLogin] = useState(false);
 
-  useEffect(() => {
-    setIsFormValid(credential.length >= 4 && password.length >= 6);
-  }, [credential, password]);
-
-  useEffect(() => {
-    if (isDemoLogin && isFormValid) {
-      handleSubmit({ preventDefault: () => {} });
-      setIsDemoLogin(false);
-    }
-  }, [isDemoLogin, isFormValid]);
-
-  const demoLogin = (e) => {
-    e.preventDefault();
-    setCredential("Demo-lition");
-    setPassword("password");
-    setIsDemoLogin(true);
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = useCallback((e) => {
     e.preventDefault();
     setErrors({});
-    setLoginError(""); // Clear previous login error
     return dispatch(sessionActions.login({ credential, password }))
       .then(closeModal)
       .catch(async (res) => {
         const data = await res.json();
         if (data && data.errors) {
           setErrors(data.errors);
-          setLoginError("The provided credentials were invalid.");
         }
       });
+  }, [credential, password, dispatch, closeModal]);
+
+  useEffect(() => {
+    setIsFormValid(credential.length >= 4 && password.length >= 6);
+  }, [credential, password]);
+
+  useEffect(() => {
+    if (credential && password) {
+      handleSubmit();
+    }
+  }, [credential, password, handleSubmit]);
+
+  const demoLogin = (e) => {
+    e.preventDefault();
+    setCredential("Demo-lition");
+    setPassword("password");
   };
 
   return (

@@ -9,32 +9,25 @@ import { fetchReviewsBySpotId } from '../../store/spotReviews';
 const SpotDetails = () => {
     const { spotId } = useParams();
     const dispatch = useDispatch();
-    const { spot } = useSelector((state) => state.spots);
-    const reviewsData = useSelector(state => {
-        console.log('Full Redux State:', state);
-        console.log('SpotReviews State:', state.spotReviews);
-        return state.spotReviews || {};
-    });
+    const currentSpot = useSelector((state) => state.spots.currentSpot);
+    const reviews = useSelector(state => state.spotReviews || {});
 
     useEffect(() => {
         if (spotId) {
-            console.log('Dispatching fetch actions for spotId:', spotId);
             dispatch(fetchSpotById(spotId));
             dispatch(fetchSpotImages(spotId));
             dispatch(fetchReviewsBySpotId(spotId));
         }
     }, [dispatch, spotId]);
 
-    // Extract reviews from the nested structure
-    const reviews = reviewsData.Reviews?.Reviews || [];
+    console.log('currentSpot:', currentSpot);
+    console.log('spotId:', spotId);
 
-    console.log('Extracted Reviews:', reviews);
-
-    if (!spot) {
+    if (!currentSpot || currentSpot.id !== parseInt(spotId)) {
         return <div>Loading...</div>;
     }
 
-    const previewImage = spot.SpotImages?.find(img => img.preview)?.url || spot.previewImage;
+    const previewImage = currentSpot.SpotImages?.find(img => img.preview)?.url || currentSpot.previewImage;
     const handleReserveClick = () => {
         alert("Feature coming soon");
     };
@@ -42,29 +35,29 @@ const SpotDetails = () => {
     return (
         <div className="spot-details-container">
             <div className="spot-details-header">
-                <h1 style={{ fontWeight: 'bold' }}>{spot.name}</h1>
-                <h2>{spot.city}, {spot.state}, {spot.country}</h2>
+                <h1 style={{ fontWeight: 'bold' }}>{currentSpot.name}</h1>
+                <h2>{currentSpot.city}, {currentSpot.state}, {currentSpot.country}</h2>
             </div>
             <div className="spot-details-images-container">
                 <div className="spot-details-preview-image">
-                    <img src={previewImage} alt={spot.name} />
+                    <img src={previewImage} alt={currentSpot.name} />
                 </div>
                 <div className="spot-details-all-images">
-                    {spot.SpotImages?.filter(img => !img.preview).map((image, index) => (
-                        <img key={index} src={image.url} alt={`${spot.name} ${index + 1}`} />
+                    {currentSpot.SpotImages?.filter(img => !img.preview).map((image, index) => (
+                        <img key={index} src={image.url} alt={`${currentSpot.name} ${index + 1}`} />
                     ))}
                 </div>
             </div>
             <div className="spot-details-info">
                 <div className="spot-details-host-price">
                     <div className="spot-details-host">
-                        <h2>Hosted by {spot.Owner?.firstName} {spot.Owner?.lastName}</h2>
-                        <p>{spot.description}</p>
+                        <h2>Hosted by {currentSpot.Owner?.firstName} {currentSpot.Owner?.lastName}</h2>
+                        <p>{currentSpot.description}</p>
                     </div>
                     <div className="spot-details-price-rating">
                         <div className="price-rating-row">
-                            <h2>${spot.price} night</h2>
-                            <h2>★{spot.avgStarRating ? spot.avgStarRating : 'New'}</h2>
+                            <h2>${currentSpot.price} night</h2>
+                            <h2>★{currentSpot.avgStarRating ? currentSpot.avgStarRating : 'New'}</h2>
                         </div>
                         <div className='reservation-button login-button'>
                             <button onClick={handleReserveClick}>Reserve</button>
@@ -73,7 +66,21 @@ const SpotDetails = () => {
                 </div>
             </div>
             <div className='spot-details-reviews'>
-                <h1>★{spot.avgStarRating ? spot.avgStarRating : 'New'} • {spot.numReviews === 1 ? `${spot.numReviews} review` : `${spot.numReviews} reviews`}</h1>
+                <h1>
+                    {currentSpot.numReviews === 0 ? (
+                        '★ New'
+                    ) : (
+                        <>
+                            ★ {currentSpot.avgStarRating ? currentSpot.avgStarRating : 'New'}
+                            {currentSpot.numReviews > 0 && (
+                                <>
+                                    <span style={{ margin: '0 5px' }}>·</span>
+                                    {currentSpot.numReviews} {currentSpot.numReviews === 1 ? 'review' : 'reviews'}
+                                </>
+                            )}
+                        </>
+                    )}
+                </h1>
                 <button className='login-button post-review-button'>Post Your Review</button>
                 <div className='spot-details-reviews-list'>
                     {reviews.length > 0 ? (
@@ -91,7 +98,6 @@ const SpotDetails = () => {
                         })
                     ) : (
                         <div className='spot-details-review'>
-                            <h3 className='review-header'>★New</h3>
                             <p>Be the first to post a review!</p>
                         </div>
                     )}

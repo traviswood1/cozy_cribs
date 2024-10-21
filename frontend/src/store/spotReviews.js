@@ -34,13 +34,30 @@ export const fetchReviewsBySpotId = (spotId) => async (dispatch) => {
     }
 };
 
-export const createReview = (reviewData) => async (dispatch) => {
-    const response = await csrfFetch('/api/reviews', {
-        method: 'POST',
-        body: JSON.stringify(reviewData)
-    });
-    const data = await response.json();
-    dispatch(addReview(data));
+export const createReview = (spotId, reviewData) => async (dispatch) => {
+    try {
+        console.log('Creating review for spot:', spotId, 'with data:', reviewData);
+        const response = await csrfFetch(`/api/spots/${spotId}/reviews`, {
+            method: 'POST',
+            body: JSON.stringify(reviewData)
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Server responded with an error:', response.status, errorData);
+            throw errorData;
+        }
+        const data = await response.json();
+        console.log('Review created successfully:', data);
+        dispatch(addReview(data));
+        return data;
+    } catch (error) {
+        console.error('Error in createReview:', error);
+        if (error.json) {
+            const errorData = await error.json();
+            console.error('Error details:', errorData);
+        }
+        throw error;
+    }
 };
 
 export const editReview = (reviewId, reviewData) => async (dispatch) => {
@@ -66,11 +83,14 @@ const initialState = {
 const spotReviewsReducer = (state = initialState, action) => {
     switch (action.type) {
         case SET_REVIEWS:
-            return { ...state, Reviews: action.reviews };
+            return {
+                ...state,
+                reviews: action.reviews.Reviews // Note the capital R in Reviews
+            };
         case DELETE_REVIEW:
             return {
                 ...state,
-                Reviews: state.Reviews.filter(review => review.id !== action.reviewId)
+                reviews: state.reviews.filter(review => review.id !== action.reviewId)
             };
         default:
             return state;

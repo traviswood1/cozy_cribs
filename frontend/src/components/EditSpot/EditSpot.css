@@ -1,0 +1,91 @@
+.edit-spot-form {
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    justify-content: left;
+    width: 50vw;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+    margin-bottom: 3rem;
+}
+
+.edit-spot-form h1 {
+    display: block;
+    text-align: left !important;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 2rem 0;
+}
+
+.edit-spot-form h3 {
+    display: block;
+    text-align: left !important;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    width: 100%;
+    padding-left: 0;
+}
+
+.edit-spot-form p {
+    display: block;
+    text-align: left !important;
+    font-size: 1rem;
+    margin: 0 0 2rem 0;
+    line-height: 1.5;
+    width: 100%;
+    padding-left: 0;
+}
+
+.edit-spot-form label {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+    width: 100%;
+    align-items: flex-start;
+    text-align: left;
+}
+
+.edit-spot-form input {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+    width: 100%;
+}
+
+.edit-spot-form textarea {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+    height: 100px;
+    width: 100%;
+    resize: none;
+}
+
+.edit-spot-form button {
+    padding: 0.5rem 1rem;
+    border: 2px solid #000000;
+    border-radius: 0.25rem;
+    background-color: #000;
+    color: #fff;
+    cursor: pointer;
+}
+
+.edit-spot-form button:hover {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+
+.inputGroup {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.inputGroup > * {
+  flex: 1;
+}

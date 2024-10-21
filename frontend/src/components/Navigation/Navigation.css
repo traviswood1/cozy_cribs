@@ -80,7 +80,7 @@ li h1 {
 }
 
 button.create-spot-button {
-    color: lightpink;
+    color: rgb(255, 113, 134);
     text-decoration: none;
     cursor: pointer;
     font-size: 16px;
@@ -95,6 +95,11 @@ button.create-spot-button {
 
 button.create-spot-button:hover {
     color: #ff385c;
+}
+
+.create-spot-button:active {
+    color: rgb(255, 113, 134);
+    background-color: inherit;
 }
 
 .profile-icon {

@@ -10,15 +10,20 @@ function Navigation({ isLoaded }) {
     <ul>
       <li className="logo-container">
         <NavLink to="/">
-          <img src="/public/favicons/cozy-icon-96.png" alt="Cozy Cribs" />
+          <img 
+            src="/favicons/cozy-icon-96.png" 
+            alt="Cozy Cribs" 
+          />
           <h1 className="logo">Cozy Cribs</h1>
         </NavLink>
       </li>
-      <li>
-        <NavLink to="/spots/new">
-          <button className="create-spot-button">Create a New Spot</button>
-        </NavLink>
-      </li>
+      {sessionUser && (
+        <li>
+          <NavLink to="/spots/new">
+            <button className="create-spot-button">Create a New Spot</button>
+          </NavLink>
+        </li>
+      )}
       {isLoaded && (
         <li>
           <ProfileButton user={sessionUser} />

@@ -122,28 +122,28 @@
 }
 
 .reservation-button {
-    align-self: stretch;
     margin-top: 10px;
     width: 100%;
-    font-weight: bold;
 }
 
 .reservation-button button {
     background-color: #000000;
     color: white;
-    border: none;
+    border: 2px solid black;
     border-radius: 5px;
     cursor: pointer;
     width: 100%;
-    padding: 10px 0;
+    padding: 10px;
     font-weight: bold;
+    margin: 0;
 }
 
 .reservation-button button:hover {
     background-color: #ffffff;
     color: #000000;
-    border: 2px solid #000000;
     font-weight: bold;
+    border: 2px solid black;
+    border-radius: 5px;
 }
 
 .spot-details-review {
@@ -178,6 +178,13 @@
     padding-left: 15px;
     display: flex;
     align-items: center;
+}
+
+.spot-details-review-button {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%;
 }
 
 /* Responsive adjustments */

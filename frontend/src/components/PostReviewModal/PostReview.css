@@ -1,0 +1,122 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    width: 100%; /* Ensure the form takes full width */
+}
+
+label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    width: 90%;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button.login-button {
+    width: 15%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #000;
+    color: #fff;
+    width: 90%;
+}
+
+button:hover {
+    background-color: #fff;
+    color: #000;
+    cursor: pointer;
+}
+
+button:active {
+    background-color: #000;
+    color: #fff;
+}
+
+button.login-button:disabled {
+    background-color: #ccc;
+    color: #fff;
+    cursor: not-allowed;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.manage-spots-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #333;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 18px;
+    width: 100%; /* Make the button take full width of its container */
+}
+
+.manage-spots-link:hover {
+    color: #000;
+    text-decoration: underline;
+}
+
+.review-textarea {
+    width: 90%;
+    height: 100px;
+    border: 2px solid #000000;
+    border-radius: 5px;
+    resize: none;
+    padding: 10px;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+}
+
+.star-rating-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 48px;
+    margin: 0;
+    padding: 0;
+}
+
+.star-rating-container:hover {
+    cursor: pointer;
+}
+
+.star-rating-container h3 {
+    margin: 0;
+    padding: 0;
+    font-size: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: translateY(4px);
+}

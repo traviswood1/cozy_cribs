@@ -6,19 +6,28 @@ import './HomePage.css';
 
 const HomePage = () => {
     const dispatch = useDispatch();
-    const spots = useSelector(state => state.spots?.allSpots || []);
+    const spotsObj = useSelector(state => state.spots.allSpots);
+    const spots = spotsObj ? Object.values(spotsObj) : [];
     const [isLoading, setIsLoading] = useState(true);
     const [activeTooltip, setActiveTooltip] = useState(null);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
     useEffect(() => {
+        console.log('Fetching spots...');
         dispatch(fetchSpots())
-            .then(() => setIsLoading(false))
+            .then(() => {
+                console.log('Spots fetched successfully');
+                setIsLoading(false);
+            })
             .catch(error => {
                 console.error('Error fetching spots:', error);
                 setIsLoading(false);
             });
     }, [dispatch]);
+
+    useEffect(() => {
+        console.log('Current spots in state:', spots);
+    }, [spots]);
 
     const handleMouseEnter = (spotId) => {
         setActiveTooltip(spotId);
@@ -69,8 +78,8 @@ const HomePage = () => {
                                 className="custom-tooltip" 
                                 style={{
                                     left: mousePos.x,
-                                    top: mousePos.y + 20, // Offset to prevent tooltip from covering the cursor
-                                    position: 'fixed' // Changed from 'absolute' to 'fixed'
+                                    top: mousePos.y + 20,
+                                    position: 'fixed'
                                 }}
                             >
                                 {spot.name}

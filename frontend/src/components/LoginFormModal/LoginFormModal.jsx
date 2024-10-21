@@ -29,12 +29,6 @@ function LoginFormModal() {
     setIsFormValid(credential.length >= 4 && password.length >= 6);
   }, [credential, password]);
 
-  useEffect(() => {
-    if (credential && password) {
-      handleSubmit();
-    }
-  }, [credential, password, handleSubmit]);
-
   const demoLogin = (e) => {
     e.preventDefault();
     setCredential("Demo-lition");

@@ -1,0 +1,239 @@
+.user-spots {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    width: 100%;
+    padding: 0 20px;
+}
+
+.user-spots-header {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+    margin-left: 0;
+    font-weight: bold;
+}
+
+.user-spots-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.create-new-spot-button {
+    margin: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: center;
+    padding: 10px;
+    width: 300px;
+    height: fit-content;
+    text-decoration: none;
+    color: rgb(255, 255, 255);
+    background-color: #000000;
+    border: 2px solid #000000;
+    align-self: flex-start;
+}
+
+.create-new-spot-button-container {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.create-new-spot-button:hover {
+    cursor: pointer;
+    background-color: rgb(255, 255, 255);
+    color: #000000;
+}
+
+.update-delete-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.login-button {
+    margin: 0 10px;
+    text-decoration: none;
+    color: rgb(255, 255, 255);
+    background-color: #000000;
+    border: 2px solid #000000;
+    border-radius: 5px;
+    padding: 5px 10px;
+}
+
+.login-button:hover {
+    cursor: pointer;
+    background-color: rgb(255, 255, 255);
+    color: #000000;
+}
+
+.spot-link {
+    margin: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    text-align: center;
+    width: 300px;
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+    color: black;
+}
+
+.spot-link:hover {
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    transform: scale(1.02);
+}
+
+.react-tooltip {
+    background-color: #000;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.spot-image-container {
+    width: 300px;
+    height: 200px;
+    overflow: hidden;
+}
+
+.spot-link img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.spot-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.location-price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.rating {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    font-weight: bold;
+}
+
+.location-price h3 {
+    margin: 0px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.location-price h3:hover {
+    text-decoration: underline;
+}
+
+.location-price p {
+    margin: 5px 0px;
+    font-size: 18px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.rating p {
+    margin: 5px;
+    font-size: 20px;
+    text-decoration: none;
+}
+
+.spot-wrapper {
+    position: relative;
+}
+
+.custom-tooltip {
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    height: fit-content;
+    width: fit-content;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    z-index: 1000;
+}
+
+.spot-details-reviews {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin-top: 20px;
+    align-self: flex-start;
+    width: 100%;
+}
+
+.post-review-button {
+    align-self: flex-start;
+    width: 100px;
+    max-width: 200px;
+    font-weight: bold;
+}
+
+.post-review-button:hover {
+    cursor: pointer;
+    font-weight: bold;
+    border: 2px solid #000000;
+}
+
+.spot-details-reviews-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%;
+    margin: 40px 10px;
+}
+
+.user-spots-button {
+    padding: 10px 20px;
+    background-color: #000000;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 16px;
+    margin: 5px;
+    display: inline-block;
+    border: 2px solid #000000;
+    font-weight: bold;
+}
+
+.user-spots-button:hover {
+    cursor: pointer;
+    background-color: rgb(255, 255, 255);
+    color: #000000;
+    border: 2px solid #000000;
+}

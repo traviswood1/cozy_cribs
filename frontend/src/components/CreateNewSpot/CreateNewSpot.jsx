@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './CreateNewSpot.css';
 import { useDispatch } from 'react-redux';
 import { createSpot } from '../../store/spots'; // Assuming you have this action creator
@@ -154,7 +154,7 @@ const CreateNewSpot = () => {
                 {errors.description && <span className="error">{errors.description}</span>}
                 
                 <h3>Create a title for your spot</h3>
-                <p>Catch guests' attention with a spot title that highlights what makes your place special.</p>
+                <p>Catch guests&apos; attention with a spot title that highlights what makes your place special.</p>
                 <input type="text" name="name" value={formData.name} onChange={handleInputChange} placeholder="Name of your spot" />
                 {errors.name && <span className="error">{errors.name}</span>}
                 

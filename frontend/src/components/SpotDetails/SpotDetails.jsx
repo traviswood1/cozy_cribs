@@ -3,7 +3,6 @@ import './SpotDetails.css';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchSpotById } from '../../store/spots';
-import { fetchReviewsBySpotId } from '../../store/spotReviews';
 import PostReviewModal from '../PostReviewModal/PostReview';
 import { useModal } from '../../context/Modal';
 import DeleteSpotModal from '../DeleteSpotModal/DeleteSpotModal';

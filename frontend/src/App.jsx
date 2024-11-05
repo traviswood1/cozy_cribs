@@ -7,7 +7,6 @@ import HomePage from './components/Homepage/HomePage';
 import SpotDetails from './components/SpotDetails/SpotDetails';
 import UserSpots from './components/UserSpots/UserSpots';
 import EditSpot from './components/EditSpot/EditSpot';
-import DeleteSpotModal from './components/DeleteSpotModal/DeleteSpotModal';
 import * as sessionActions from './store/session';
 
 function Layout() {
@@ -15,10 +14,21 @@ function Layout() {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    dispatch(sessionActions.restoreUser()).then(() => {
-      setIsLoaded(true)
-    });
+    console.log('Layout mounting, starting session restore...');
+    
+    dispatch(sessionActions.restoreUser())
+      .then(() => {
+        console.log('Session restored successfully');
+        setIsLoaded(true);
+      })
+      .catch((error) => {
+        console.error('Session restore failed:', error);
+        setIsLoaded(true);
+      });
   }, [dispatch]);
+
+  // Add immediate logging
+  console.log('Layout render:', { isLoaded });
 
   return (
     <>

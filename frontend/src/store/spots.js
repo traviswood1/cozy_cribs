@@ -1,5 +1,3 @@
-// Add this at the top of the file
-const API_BASE_URL = 'http://localhost:8000'; 
 
 import { csrfFetch } from './csrf';
 

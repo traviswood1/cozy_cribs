@@ -56,17 +56,21 @@ const SpotDetails = () => {
     const canPostReview = currentUser && currentUser.id !== spot.ownerId && !userHasReviewed;
 
     const handleReviewSubmitSuccess = async () => {
+        console.log('Handling review submit success...');
         try {
+            // Fetch updated data
             await Promise.all([
                 dispatch(fetchSpotById(spotId)),
                 dispatch(fetchReviewsBySpotId(spotId))
             ]);
+            console.log('Data updated successfully');
         } catch (error) {
             console.error('Error updating data after review:', error);
         }
     };
 
     const openReviewModal = () => {
+        console.log('Opening review modal...');
         setModalContent(
             <PostReviewModal
                 spotId={spotId}

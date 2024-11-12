@@ -1,14 +1,15 @@
 import { useState } from 'react';
+import * as reviewActions from '../../store/spotReviews';
 import { useDispatch } from 'react-redux';
 import { useModal } from '../../context/Modal';
-import * as reviewActions from '../../store/spotReviews';
 import './PostReview.css';
 
-function PostReviewModal({ spotId }) {
+function PostReviewModal({ spotId, onSubmitSuccess }) {
     const dispatch = useDispatch();
     const [review, setReview] = useState("");
-    const [rating, setRating] = useState(0);
     const [errors, setErrors] = useState({});
+    const [isFormValid, setIsFormValid] = useState(false);
+    const [rating, setRating] = useState(0);
     const { closeModal } = useModal();
     const [hoveredRating, setHoveredRating] = useState(0);
 
@@ -28,15 +29,22 @@ function PostReviewModal({ spotId }) {
 
         try {
             console.log('Starting review submission...');
-            const result = await dispatch(reviewActions.createReview(spotId, { 
+            await dispatch(reviewActions.createReview(spotId, { 
                 review, 
                 stars: rating 
             }));
 
-            if (result.success) {
-                console.log('Review created successfully, closing modal...');
-                closeModal();
+            console.log('Review submitted successfully');
+            
+            // Call the success callback first
+            if (onSubmitSuccess) {
+                await onSubmitSuccess();
             }
+            
+            // Then close the modal
+            console.log('Closing modal...');
+            closeModal();
+            
         } catch (error) {
             console.error('Review submission error:', error);
             if (error.errors) {

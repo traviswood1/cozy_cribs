@@ -39,7 +39,7 @@ export const fetchReviewsBySpotId = (spotId) => async (dispatch) => {
 
 export const createReview = (spotId, reviewData) => async (dispatch) => {
     try {
-        console.log('Creating review...');
+        console.log('Creating review in thunk...');
         const response = await csrfFetch(`/api/spots/${spotId}/reviews`, {
             method: 'POST',
             headers: {
@@ -54,26 +54,17 @@ export const createReview = (spotId, reviewData) => async (dispatch) => {
         }
 
         const newReview = await response.json();
+        console.log('Review created:', newReview);
+        
+        // Dispatch the new review to the store
         dispatch(addReview(newReview));
-
+        
         // Fetch updated reviews
         await dispatch(fetchReviewsBySpotId(spotId));
-
-        // Update spot data directly
-        try {
-            console.log('Fetching updated spot data...');
-            const spotResponse = await csrfFetch(`/api/spots/${spotId}`);
-            if (spotResponse.ok) {
-                const spotData = await spotResponse.json();
-                dispatch(setSingleSpot(spotData));
-            }
-        } catch (spotError) {
-            console.error('Error updating spot data:', spotError);
-        }
-
-        return { success: true };
+        
+        return newReview;
     } catch (error) {
-        console.error('Error in createReview:', error);
+        console.error('Error in createReview thunk:', error);
         throw error;
     }
 };

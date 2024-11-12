@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import * as reviewActions from '../../store/spotReviews';
 import { useDispatch } from 'react-redux';
 import { useModal } from '../../context/Modal';
-import { fetchSpotById } from '../../store/spots';
 import './PostReview.css';
 
 function PostReviewModal({ spotId }) {
@@ -23,8 +22,6 @@ function PostReviewModal({ spotId }) {
         review, 
         stars: rating 
       }));
-
-      await dispatch(fetchSpotById(spotId));
 
       closeModal();
     } catch (error) {

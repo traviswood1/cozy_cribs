@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch } from "react-redux";
 import { useModal } from "../../context/Modal";
 import * as sessionActions from "../../store/session";
@@ -124,7 +124,7 @@ function SignupFormModal() {
         <button 
           type="submit" 
           disabled={!isFormValid}
-          className={!isFormValid ? 'disabled' : ''}
+          className="signup-button"
         >
           Sign Up
         </button>

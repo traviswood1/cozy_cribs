@@ -25,12 +25,6 @@ function Navigation({ isLoaded }) {
     });
   }, [isLoaded, sessionUser]);
 
-  // Add this console log
-  console.log('TEST UPDATE:', { 
-    time: new Date().toISOString(),
-    isLoaded,
-    hasUser: !!sessionUser 
-  });
 
   return (
     <nav>

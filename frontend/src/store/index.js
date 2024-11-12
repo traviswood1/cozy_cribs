@@ -1,54 +1,35 @@
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
 import sessionReducer from './session';
-import spotsReducer from './spots';
+import spotsReducer from './reducers/spotsReducer';
 import spotImagesReducer from './spotImages';
 import spotReviewsReducer from './spotReviews';
 
-// Error handling middleware
-const errorMiddleware = store => next => action => {
-  try {
-    if (action instanceof Promise) {
-      return action.catch(error => {
-        console.error('Redux Promise Error:', error);
-        throw error;
-      });
-    }
-    return next(action);
-  } catch (error) {
-    console.error('Redux Error:', error);
-    throw error;
-  }
-};
-
 const rootReducer = combineReducers({
-  session: sessionReducer,
-  spots: spotsReducer,
-  spotImages: spotImagesReducer,
-  spotReviews: spotReviewsReducer,
+    session: sessionReducer,
+    spots: spotsReducer,
+    spotImages: spotImagesReducer,
+    spotReviews: spotReviewsReducer,
 });
 
-// Add Redux DevTools in development
-const enhancer = process.env.NODE_ENV === 'production'
-  ? applyMiddleware(thunk, errorMiddleware)
-  : compose(
-      applyMiddleware(thunk, errorMiddleware),
-      window.__REDUX_DEVTOOLS_EXTENSION__ 
-        ? window.__REDUX_DEVTOOLS_EXTENSION__()
-        : f => f
-    );
+let enhancer;
+
+if (process.env.NODE_ENV === 'production') {
+    enhancer = applyMiddleware(thunk);
+} else {
+    const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+    enhancer = composeEnhancers(applyMiddleware(thunk));
+}
 
 const configureStore = (preloadedState) => {
-  const store = createStore(rootReducer, preloadedState, enhancer);
-
-  // Enable hot reloading in development
-  if (process.env.NODE_ENV !== 'production' && module.hot) {
-    module.hot.accept(rootReducer, () => {
-      store.replaceReducer(rootReducer);
-    });
-  }
-
-  return store;
+    return createStore(rootReducer, preloadedState, enhancer);
 };
 
 export default configureStore;
+
+// Re-export everything from our modules
+export * from './actions/spotActions';
+export * from './actions/reviewActions';
+export * from './thunks/spotThunks';
+export * from './thunks/reviewThunks';
+export * from './selectors/spotSelectors';

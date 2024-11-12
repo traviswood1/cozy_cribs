@@ -1,91 +1,35 @@
-import { csrfFetch } from './csrf';
-import { fetchSpotData } from './utils/spotUtils';
-import { setSingleSpot } from './spots';
+import * as types from './actionTypes';
 
-// Action Types
-const ADD_REVIEW = 'reviews/ADD_REVIEW';
-const LOAD_REVIEWS = 'reviews/LOAD_REVIEWS';
-
-// Action Creators
-const addReview = (review) => ({
-    type: ADD_REVIEW,
-    payload: review
-});
-
-const loadReviews = (reviews) => ({
-    type: LOAD_REVIEWS,
-    payload: reviews
-});
-
-// Thunks
-export const createReview = (spotId, reviewData) => async (dispatch) => {
-    try {
-        console.log('Creating review...');
-        const response = await csrfFetch(`/api/spots/${spotId}/reviews`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(reviewData)
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw error;
-        }
-
-        const newReview = await response.json();
-        console.log('Review created successfully:', newReview);
-        
-        // Add the new review to the store
-        dispatch(addReview(newReview));
-
-        // Fetch updated reviews
-        await dispatch(fetchReviewsBySpotId(spotId));
-
-        // Update spot data
-        const updatedSpot = await fetchSpotData(spotId);
-        dispatch(setSingleSpot(updatedSpot));
-
-        return { success: true, review: newReview };
-    } catch (error) {
-        console.error('Error in createReview:', error);
-        throw error;
-    }
-};
-
-export const fetchReviewsBySpotId = (spotId) => async (dispatch) => {
-    try {
-        const response = await csrfFetch(`/api/spots/${spotId}/reviews`);
-        if (response.ok) {
-            const data = await response.json();
-            dispatch(loadReviews(data.Reviews));
-            return data.Reviews;
-        }
-    } catch (error) {
-        console.error('Error fetching reviews:', error);
-        throw error;
-    }
-};
-
-// Initial State
 const initialState = {
-    reviews: []
+    reviews: [],
+    isLoading: false,
+    error: null
 };
 
-// Reducer
 const spotReviewsReducer = (state = initialState, action) => {
     switch (action.type) {
-        case ADD_REVIEW:
+        case types.LOAD_REVIEWS:
             return {
                 ...state,
-                reviews: [...state.reviews, action.payload]
+                reviews: Array.isArray(action.payload) ? action.payload : [],
+                isLoading: false,
+                error: null
             };
-        case LOAD_REVIEWS:
+            
+        case types.ADD_REVIEW:
             return {
                 ...state,
-                reviews: action.payload
+                reviews: [...state.reviews, action.payload],
+                error: null
             };
+            
+        case types.REMOVE_REVIEW:
+            return {
+                ...state,
+                reviews: state.reviews.filter(review => review.id !== action.payload),
+                error: null
+            };
+            
         default:
             return state;
     }

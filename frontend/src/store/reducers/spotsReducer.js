@@ -1,4 +1,4 @@
-import * as types from './actionTypes';
+import * as types from '../actionTypes';
 
 const initialState = {
     allSpots: [],
@@ -48,5 +48,4 @@ const spotsReducer = (state = initialState, action) => {
     }
 };
 
-export default spotsReducer;
-
+export default spotsReducer; 

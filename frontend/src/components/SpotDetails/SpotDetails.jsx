@@ -1,30 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import './SpotDetails.css';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { setSingleSpot } from '../../store/spots';
-import { fetchReviewsBySpotId } from '../../store/spotReviews';
-import { fetchSpotData } from '../../store/utils/spotUtils';
+import { fetchSpotById, fetchReviewsBySpotId } from '../../store';
 import PostReviewModal from '../PostReviewModal/PostReview';
 import DeleteReviewModal from '../DeleteReviewModal/DeleteReviewModal';
 import { useModal } from '../../context/Modal';
+import './SpotDetails.css';
 
 const SpotDetails = () => {
     const { spotId } = useParams();
     const dispatch = useDispatch();
+    const { setModalContent } = useModal();
+    const [isLoading, setIsLoading] = useState(true);
+    
+    // Selectors
     const spot = useSelector(state => state.spots.singleSpot);
     const reviews = useSelector(state => state.spotReviews.reviews || []);
     const currentUser = useSelector(state => state.session.user);
-    const [isLoading, setIsLoading] = useState(true);
-    const { setModalContent } = useModal();
 
     useEffect(() => {
         const loadData = async () => {
             setIsLoading(true);
             try {
-                const spotData = await fetchSpotData(spotId);
-                dispatch(setSingleSpot(spotData));
-                await dispatch(fetchReviewsBySpotId(spotId));
+                const [spotResult, reviewsResult] = await Promise.all([
+                    dispatch(fetchSpotById(spotId)),
+                    dispatch(fetchReviewsBySpotId(spotId))
+                ]);
+                console.log('Loaded data:', { spotResult, reviewsResult }); // Debug log
             } catch (error) {
                 console.error('Error loading data:', error);
             } finally {
@@ -35,36 +37,37 @@ const SpotDetails = () => {
         loadData();
     }, [dispatch, spotId]);
 
+    // Handlers
     const handleReviewSubmitSuccess = async () => {
-        console.log('Handling review submit success...');
         try {
-            const updatedSpot = await fetchSpotData(spotId);
-            dispatch(setSingleSpot(updatedSpot));
+            await dispatch(fetchSpotById(spotId));
             await dispatch(fetchReviewsBySpotId(spotId));
-            console.log('Data updated successfully');
         } catch (error) {
             console.error('Error updating data after review:', error);
         }
     };
 
     const openReviewModal = () => {
-        console.log('openReviewModal called');
-        const modalComponent = (
-            <div style={{backgroundColor: 'white', padding: '20px'}}>
-                <h1 style={{color: 'red'}}>TEST MODAL</h1>
-                <PostReviewModal
-                    spotId={spotId}
-                    onSubmitSuccess={handleReviewSubmitSuccess}
-                />
-            </div>
+        setModalContent(
+            <PostReviewModal
+                spotId={spotId}
+                onSubmitSuccess={handleReviewSubmitSuccess}
+            />
         );
-        console.log('Setting modal content');
-        setModalContent(modalComponent);
     };
 
-    useEffect(() => {
-        console.log('canPostReview:', canPostReview);
-    }, [canPostReview]);
+    const openDeleteReviewModal = (reviewId) => {
+        setModalContent(
+            <DeleteReviewModal 
+                reviewId={reviewId}
+                spotId={spotId}
+            />
+        );
+    };
+
+    const handleReserveClick = () => {
+        alert("Feature coming soon");
+    };
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -75,21 +78,8 @@ const SpotDetails = () => {
     }
 
     const previewImage = spot.SpotImages?.find(img => img.preview)?.url || spot.previewImage;
-    const handleReserveClick = () => {
-        alert("Feature coming soon");
-    };
-
     const userHasReviewed = currentUser && reviews.some(review => review.userId === currentUser.id);
     const canPostReview = currentUser && currentUser.id !== spot.ownerId && !userHasReviewed;
-
-    const openDeleteReviewModal = (reviewId) => {
-        setModalContent(
-            <DeleteReviewModal 
-                reviewId={reviewId}
-                spotId={spotId}
-            />
-        );
-    };
 
     return (
         <div className="spot-details-container">
@@ -125,27 +115,22 @@ const SpotDetails = () => {
                 </div>
             </div>
             <div className="reviews-section">
-                <h2>★ {spot.avgStarRating ? spot.avgStarRating : 'New'} · {spot.numReviews} {spot.numReviews === 1 ? 'Review' : 'Reviews'}</h2>
+                <h2>
+                    ★ {Number(spot.avgStarRating) || 'New'} · 
+                    {spot.numReviews} {spot.numReviews === 1 ? 'Review' : 'Reviews'}
+                </h2>
+                
                 {canPostReview && (
-                    <div className="spot-details-review-button">
-                        <button 
-                            onClick={() => {
-                                console.log('Review button clicked');
-                                openReviewModal();
-                            }}
-                            style={{
-                                padding: '10px',
-                                backgroundColor: 'blue',
-                                color: 'white',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            Post Your Review (Test)
-                        </button>
-                    </div>
+                    <button 
+                        onClick={openReviewModal}
+                        className="review-button"
+                    >
+                        Post Your Review
+                    </button>
                 )}
+
                 <div className="reviews-container">
-                    {reviews.length > 0 ? (
+                    {Array.isArray(reviews) && reviews.length > 0 ? (
                         reviews
                             .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                             .map(review => (
@@ -168,9 +153,13 @@ const SpotDetails = () => {
                                 </div>
                             ))
                     ) : (
-                        currentUser && currentUser.id !== spot.ownerId && (
-                            <p>Be the first to post a review!</p>
-                        )
+                        <div className="no-reviews">
+                            {currentUser && currentUser.id !== spot.ownerId ? (
+                                <p>Be the first to post a review!</p>
+                            ) : (
+                                <p>No reviews yet</p>
+                            )}
+                        </div>
                     )}
                 </div>
             </div>

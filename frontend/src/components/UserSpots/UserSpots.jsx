@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { fetchSpots } from '../../store/spots';
+import { fetchSpots } from '../../store';
 import { useModal } from '../../context/Modal';
 import DeleteSpotModal from '../DeleteSpotModal/DeleteSpotModal';
 import './UserSpots.css';

@@ -1,48 +1,51 @@
-import { useState, useEffect } from 'react';
-import * as reviewActions from '../../store/spotReviews';
+import { useState } from 'react';
+import { createReview } from '../../store/thunks/reviewThunks';
 import { useDispatch } from 'react-redux';
 import { useModal } from '../../context/Modal';
 import './PostReview.css';
 
 function PostReviewModal({ spotId, onSubmitSuccess }) {
-    console.log('PostReviewModal function called with spotId:', spotId);
-
     const dispatch = useDispatch();
     const [review, setReview] = useState("");
-    const [errors, setErrors] = useState({});
     const [rating, setRating] = useState(0);
+    const [errors, setErrors] = useState({});
     const { closeModal } = useModal();
     const [hoveredRating, setHoveredRating] = useState(0);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    useEffect(() => {
-        console.log('PostReviewModal mounted');
-        return () => console.log('PostReviewModal unmounted');
-    }, []);
+    const validateForm = () => {
+        const newErrors = {};
+        
+        if (!review.trim()) {
+            newErrors.review = "Review text is required";
+        } else if (review.length < 10) {
+            newErrors.review = "Review must be at least 10 characters long";
+        }
 
-    useEffect(() => {
-        console.log('Review state changed:', review);
-    }, [review]);
+        if (!rating) {
+            newErrors.stars = "Please select a star rating";
+        }
 
-    useEffect(() => {
-        console.log('Rating state changed:', rating);
-    }, [rating]);
-
-    console.log('PostReviewModal rendering with state:', { review, rating, errors });
+        return newErrors;
+    };
 
     const handleSubmit = async (e) => {
-        console.log('Submit button clicked');
         e.preventDefault();
-        console.log('Form submission started');
+        
+        const formErrors = validateForm();
+        if (Object.keys(formErrors).length > 0) {
+            setErrors(formErrors);
+            return;
+        }
+
+        setIsSubmitting(true);
         setErrors({});
 
         try {
-            console.log('Attempting to create review...');
-            const result = await dispatch(reviewActions.createReview(spotId, { 
-                review, 
+            await dispatch(createReview(spotId, { 
+                review: review.trim(), 
                 stars: rating 
             }));
-            
-            console.log('Review creation successful:', result);
             
             if (onSubmitSuccess) {
                 await onSubmitSuccess();
@@ -51,27 +54,45 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
             closeModal();
         } catch (error) {
             console.error('Review submission error:', error);
-            if (error.errors) {
-                setErrors(error.errors);
-            } else {
-                setErrors({ general: 'An error occurred while submitting your review.' });
+            let errorMessage = 'An error occurred while submitting your review.';
+            
+            try {
+                const errorData = await error.json();
+                if (errorData.errors) {
+                    setErrors(errorData.errors);
+                    return;
+                } else if (errorData.message) {
+                    errorMessage = errorData.message;
+                }
+            } catch (e) {
+                console.error('Error parsing error response:', e);
             }
+            
+            setErrors({ general: errorMessage });
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     const handleTextChange = (e) => {
-        console.log('Text changed:', e.target.value);
         setReview(e.target.value);
+        // Clear error when user starts typing
+        if (errors.review) {
+            setErrors(prev => ({ ...prev, review: null }));
+        }
     };
 
     const handleStarClick = (star) => {
-        console.log('Star clicked:', star);
         setRating(star);
+        // Clear error when user selects rating
+        if (errors.stars) {
+            setErrors(prev => ({ ...prev, stars: null }));
+        }
     };
 
     return (
         <div className="review-modal">
-            <h1 style={{color: 'red'}}>TEST - Modal is rendering</h1>
+            <h1>How was your stay?</h1>
             {errors.general && <p className="error-message">{errors.general}</p>}
             <form onSubmit={handleSubmit}>
                 {errors.review && <p className="error-message">{errors.review}</p>}
@@ -82,6 +103,7 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
                         placeholder='Leave your review here...'
                         onChange={handleTextChange}
                         required
+                        minLength={10}
                     />
                 </label>
                 <div className='star-rating-container'>
@@ -102,8 +124,9 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
                 <button 
                     className='login-button' 
                     type="submit"
+                    disabled={isSubmitting}
                 >
-                    Submit Your Review
+                    {isSubmitting ? 'Submitting...' : 'Submit Your Review'}
                 </button>
             </form>
         </div>

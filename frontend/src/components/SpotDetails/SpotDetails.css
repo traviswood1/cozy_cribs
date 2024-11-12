@@ -184,20 +184,16 @@
     align-items: center;
 }
 
-.spot-details-review-button button {
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    width: 100%;
-    background-color: #000000;
-    color: rgb(255, 255, 255);
-    border: 2px solid #000000;
+.review-button {
     width: fit-content;
     padding: 10px;
     border-radius: 5px;
+    background-color: #000000;
+    color: rgb(255, 255, 255);
+    border: 2px solid #000000;
 }
 
-.spot-details-review-button:hover button {
+.review-button:hover {
     cursor: pointer;
     background-color: rgb(255, 255, 255);
     color: #000000;

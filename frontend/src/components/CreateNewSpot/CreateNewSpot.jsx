@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './CreateNewSpot.css';
 import { useDispatch } from 'react-redux';
-import { createSpot } from '../../store/spots'; // Assuming you have this action creator
+import { createSpot } from '../../store'; 
 import { useNavigate } from 'react-router-dom';
 
 const CreateNewSpot = () => {

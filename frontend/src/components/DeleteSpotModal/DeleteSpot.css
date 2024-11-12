@@ -1,4 +1,8 @@
-.delete-spot-modal-container {
+#modal-content {
+    background-color: white;
+}
+
+.delete-spot-modal {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -6,12 +10,12 @@
     gap: 10px;
 }
 
-.delete-spot-modal-container h1 {
+.delete-spot-modal-container > h1 {
     padding: 0;
     margin: 20px 0 0 0;
 }
 
-.delete-spot-modal-container p {
+.delete-spot-modal-container > p {
     font-size: 18px;
 }
 

@@ -23,6 +23,22 @@
     text-indent: 0.5rem;
 }
 
+.signup-button {
+    width: fit-content;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #000000;
+    color: rgb(255, 255, 255);
+    border: 2px solid #000000;
+}
+
+.signup-button:hover {
+    cursor: pointer;
+    background-color: rgb(255, 255, 255);
+    color: #000000;
+    border: 2px solid #000000;
+}
+
 .error-list {
     display: flex;
     flex-direction: column;

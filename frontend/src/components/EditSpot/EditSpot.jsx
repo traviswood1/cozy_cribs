@@ -2,7 +2,7 @@ import './EditSpot.css';
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchSpotById, updateSpot } from '../../store/spots';
+import { fetchSpotById, updateSpot } from '../../store';
 import { fetchSpotImages } from '../../store/spotImages';
 
 const EditSpot = () => {

@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { fetchSpots } from '../../store/spots';
+import { fetchSpots } from '../../store';
+import { getAllSpots } from '../../store/selectors/spotSelectors';
 import './HomePage.css';
 
 const HomePage = () => {
     const dispatch = useDispatch();
-    const spotsObj = useSelector(state => state.spots.allSpots);
-    const spots = spotsObj ? Object.values(spotsObj) : [];
+    const spots = useSelector(getAllSpots);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTooltip, setActiveTooltip] = useState(null);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });

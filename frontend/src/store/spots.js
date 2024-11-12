@@ -7,6 +7,7 @@ const ADD_SPOT = 'spots/ADD_SPOT';
 const REMOVE_SPOT = 'spots/REMOVE_SPOT';
 const UPDATE_SPOT = 'spots/UPDATE_SPOT';
 const SET_SPOT = 'spots/SET_SPOT';
+const SET_SPOT_ERROR = 'spots/SET_SPOT_ERROR';
 
 // Action Creators
 export const loadSpots = (spots) => ({
@@ -57,14 +58,20 @@ export const fetchSpotById = (spotId) => async (dispatch) => {
     try {
         console.log(`Fetching spot with id ${spotId} from API...`);
         const response = await csrfFetch(`/api/spots/${spotId}`);
-        if (response.ok) {
-            const spot = await response.json();
-            console.log('Spot received from API:', spot);
-            dispatch(setSingleSpot(spot));
-            return spot;
+        
+        if (!response.ok) {
+            const errorData = await response.text();
+            console.error(`Error response (${response.status}):`, errorData);
+            throw new Error(`Failed to fetch spot: ${response.status}`);
         }
+
+        const spot = await response.json();
+        console.log('Spot received from API:', spot);
+        dispatch(setSingleSpot(spot));
+        return spot;
     } catch (error) {
         console.error('Error fetching spot:', error);
+        throw error; // Re-throw to handle in component
     }
 };
 
@@ -137,7 +144,8 @@ export const updateSpot = (spotId, spotData) => async (dispatch) => {
 // Initial State
 const initialState = {
     allSpots: null,
-    singleSpot: null
+    singleSpot: null,
+    error: null
 };
 
 // Reducer
@@ -195,6 +203,12 @@ const spotsReducer = (state = initialState, action) => {
                         ? action.spot.SpotImages.map(img => ({...img}))
                         : []
                 }
+            };
+        case SET_SPOT_ERROR:
+            return {
+                ...state,
+                error: action.payload,
+                isLoading: false
             };
         default:
             return state;

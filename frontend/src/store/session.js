@@ -21,6 +21,22 @@ const setLoading = (isLoading) => ({
   payload: isLoading
 });
 
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 second
+
+const retryRequest = async (fn, retries = MAX_RETRIES) => {
+  try {
+    return await fn();
+  } catch (error) {
+    if (retries > 0 && (error.status === 502 || error.status === 503)) {
+      console.log(`Retrying... (${MAX_RETRIES - retries + 1}/${MAX_RETRIES})`);
+      await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+      return retryRequest(fn, retries - 1);
+    }
+    throw error;
+  }
+};
+
 export const signup = (user) => async (dispatch) => {
     const { username, firstName, lastName, email, password } = user;
     const response = await csrfFetch("/api/users", {
@@ -39,29 +55,27 @@ export const signup = (user) => async (dispatch) => {
   };
 
 export const login = (user) => async (dispatch) => {
-  try {
-    const response = await csrfFetch('/api/session', {
-      method: 'POST',
-      body: JSON.stringify(user)
-    });
+  return retryRequest(async () => {
+    try {
+      const response = await csrfFetch('/api/session', {
+        method: 'POST',
+        body: JSON.stringify(user)
+      });
 
-    if (!response.ok) {
-      let error;
-      if (response.status === 401) {
-        error = new Error('Invalid credentials');
-        error.status = 401;
-      } else {
-        error = new Error('Login failed');
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error(`Login error (${response.status}):`, errorData);
+        throw new Error(`Login failed: ${response.status}`);
       }
+
+      const data = await response.json();
+      dispatch(setUser(data.user));
+      return data;
+    } catch (error) {
+      console.error('Login error:', error);
       throw error;
     }
-
-    const data = await response.json();
-    dispatch(setUser(data.user));
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  });
 };
 
 export const logout = () => async (dispatch) => {

@@ -63,6 +63,7 @@ const SpotDetails = () => {
                 dispatch(fetchReviewsBySpotId(spotId))
             ]);
             console.log('Data updated successfully');
+            closeModal();
         } catch (error) {
             console.error('Error updating data after review:', error);
         }
@@ -72,7 +73,7 @@ const SpotDetails = () => {
         console.log('Opening review modal...');
         setModalContent(
             <PostReviewModal
-                spotId={spotId}
+                spotId={spot.id}
                 onSubmitSuccess={handleReviewSubmitSuccess}
             />
         );

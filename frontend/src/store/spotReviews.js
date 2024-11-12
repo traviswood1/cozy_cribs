@@ -59,18 +59,18 @@ export const createReview = (spotId, reviewData) => async (dispatch) => {
         // Fetch updated reviews
         await dispatch(fetchReviewsBySpotId(spotId));
 
-        // Fetch and update spot data
+        // Update spot data directly
         try {
+            console.log('Fetching updated spot data...');
             const spotResponse = await csrfFetch(`/api/spots/${spotId}`);
             if (spotResponse.ok) {
                 const spotData = await spotResponse.json();
                 dispatch(setSingleSpot(spotData));
             }
-        } catch (error) {
-            console.error('Error updating spot data:', error);
+        } catch (spotError) {
+            console.error('Error updating spot data:', spotError);
         }
-        
-        console.log('Review created and data updated successfully');
+
         return { success: true };
     } catch (error) {
         console.error('Error in createReview:', error);

@@ -60,15 +60,17 @@ export const createReview = (spotId, reviewData) => async (dispatch) => {
         // First dispatch the new review
         dispatch(addReview(newReview));
         
-        // Then update the spot data
+        // Then update the spot data using fetchSpotData directly
         try {
-            console.log('Updating spot data...');
+            console.log('Fetching updated spot data...');
             const spotData = await fetchSpotData(spotId);
             dispatch(setSingleSpot(spotData));
             console.log('Spot data updated successfully');
+            
+            // Fetch updated reviews
+            await dispatch(fetchReviewsBySpotId(spotId));
         } catch (error) {
-            console.error('Error updating spot data:', error);
-            // Don't throw here as the review was still created
+            console.error('Error updating data after review:', error);
         }
         
         return newReview;

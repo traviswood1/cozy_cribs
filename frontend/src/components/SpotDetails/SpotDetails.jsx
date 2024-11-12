@@ -48,14 +48,15 @@ const SpotDetails = () => {
     };
 
     const openReviewModal = () => {
-        console.log('Opening review modal...');
+        console.log('Opening review modal button clicked');
+        console.log('Setting modal content with spotId:', spotId);
         setModalContent(
             <PostReviewModal
                 spotId={spotId}
                 onSubmitSuccess={handleReviewSubmitSuccess}
             />
         );
-        console.log('Modal content set');
+        console.log('Modal content has been set');
     };
 
     if (isLoading) {
@@ -120,7 +121,14 @@ const SpotDetails = () => {
                 <h2>★ {spot.avgStarRating ? spot.avgStarRating : 'New'} · {spot.numReviews} {spot.numReviews === 1 ? 'Review' : 'Reviews'}</h2>
                 {canPostReview && (
                     <div className="spot-details-review-button">
-                        <button onClick={openReviewModal}>Post Your Review</button>
+                        <button 
+                            onClick={(e) => {
+                                console.log('Post Review button clicked');
+                                openReviewModal();
+                            }}
+                        >
+                            Post Your Review
+                        </button>
                     </div>
                 )}
                 <div className="reviews-container">

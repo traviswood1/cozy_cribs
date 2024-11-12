@@ -5,7 +5,7 @@ import { useModal } from '../../context/Modal';
 import './PostReview.css';
 
 function PostReviewModal({ spotId, onSubmitSuccess }) {
-    console.log('PostReviewModal rendering with spotId:', spotId);
+    console.log('PostReviewModal function called with spotId:', spotId);
 
     const dispatch = useDispatch();
     const [review, setReview] = useState("");
@@ -16,48 +16,39 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
 
     useEffect(() => {
         console.log('PostReviewModal mounted');
+        return () => console.log('PostReviewModal unmounted');
     }, []);
 
     useEffect(() => {
-        console.log('Current state:', { review, rating, errors });
-    }, [review, rating, errors]);
+        console.log('Review state changed:', review);
+    }, [review]);
+
+    useEffect(() => {
+        console.log('Rating state changed:', rating);
+    }, [rating]);
+
+    console.log('PostReviewModal rendering with state:', { review, rating, errors });
 
     const handleSubmit = async (e) => {
-        console.log('handleSubmit called');
+        console.log('Submit button clicked');
         e.preventDefault();
+        console.log('Form submission started');
         setErrors({});
 
-        console.log('Validating form data:', { review, rating });
-
-        if (review.length < 10) {
-            console.log('Review too short');
-            setErrors({ review: "Review must be at least 10 characters" });
-            return;
-        }
-        
-        if (!rating || rating < 1 || rating > 5) {
-            console.log('Invalid rating');
-            setErrors({ stars: "Please select a rating between 1 and 5" });
-            return;
-        }
-
         try {
-            console.log('Dispatching createReview action...');
+            console.log('Attempting to create review...');
             const result = await dispatch(reviewActions.createReview(spotId, { 
                 review, 
                 stars: rating 
             }));
             
-            console.log('Review creation result:', result);
-
+            console.log('Review creation successful:', result);
+            
             if (onSubmitSuccess) {
-                console.log('Calling onSubmitSuccess callback');
                 await onSubmitSuccess();
             }
             
-            console.log('Closing modal');
             closeModal();
-            
         } catch (error) {
             console.error('Review submission error:', error);
             if (error.errors) {
@@ -79,7 +70,7 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
     };
 
     return (
-        <>
+        <div className="review-modal">
             <h1>How was your stay?</h1>
             {errors.general && <p className="error-message">{errors.general}</p>}
             <form onSubmit={handleSubmit}>
@@ -115,7 +106,7 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
                     Submit Your Review
                 </button>
             </form>
-        </>
+        </div>
     );
 }
 

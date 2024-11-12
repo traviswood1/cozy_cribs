@@ -1,38 +1,42 @@
-import { useState, useEffect } from 'react';
-import * as reviewActions from '../../store/spotReviews';
+import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useModal } from '../../context/Modal';
+import * as reviewActions from '../../store/spotReviews';
+import { fetchSpotById } from '../../store/spots';
 import './PostReview.css';
 
 function PostReviewModal({ spotId }) {
-  const dispatch = useDispatch();
-  const [review, setReview] = useState("");
-  const [errors, setErrors] = useState({});
-  const [isFormValid, setIsFormValid] = useState(false);
-  const [rating, setRating] = useState(0);
-  const { closeModal } = useModal();
-  const [hoveredRating, setHoveredRating] = useState(0);
+    const dispatch = useDispatch();
+    const [review, setReview] = useState("");
+    const [rating, setRating] = useState(0);
+    const [errors, setErrors] = useState({});
+    const { closeModal } = useModal();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrors({});
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setErrors({});
 
-    try {
-      await dispatch(reviewActions.createReview(spotId, { 
-        review, 
-        stars: rating 
-      }));
-
-      closeModal();
-    } catch (error) {
-      console.error('Review submission error:', error);
-      if (error.errors) {
-        setErrors(error.errors);
-      } else {
-        setErrors({ general: 'An error occurred while submitting your review.' });
-      }
-    }
-  };
+        try {
+            console.log('Submitting review...');
+            await dispatch(reviewActions.createReview(spotId, { 
+                review, 
+                stars: rating 
+            }));
+            
+            console.log('Review submitted, updating spot...');
+            await dispatch(fetchSpotById(spotId));
+            
+            console.log('Closing modal...');
+            closeModal();
+        } catch (error) {
+            console.error('Review submission error:', error);
+            if (error.errors) {
+                setErrors(error.errors);
+            } else {
+                setErrors({ general: 'An error occurred while submitting your review.' });
+            }
+        }
+    };
 
   useEffect(() => {
     const validateForm = () => {

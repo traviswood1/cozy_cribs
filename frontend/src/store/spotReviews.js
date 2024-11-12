@@ -56,7 +56,7 @@ export const createReview = (spotId, reviewData) => async (dispatch) => {
         const newReview = await response.json();
         dispatch(addReview(newReview));
 
-        // Just fetch updated reviews
+        // Fetch updated reviews
         await dispatch(fetchReviewsBySpotId(spotId));
         
         return newReview;

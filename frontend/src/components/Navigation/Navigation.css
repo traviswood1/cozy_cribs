@@ -121,12 +121,13 @@ button.create-spot-button:hover {
 
 .profile-dropdown {
     position: absolute; 
-    top: 90%; /* Align to bottom of icon */
-    right: 0; /* Align to the right of the container */
+    top: 90%;
+    right: 0;
     background-color: white;
     display: flex;
     flex-direction: column;
     width: 200px;
+    height: fit-content;
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 10px;
@@ -192,12 +193,57 @@ button.create-spot-button:hover {
 }
 
 .profile-icon-container {
-    position: relative; /* Add this */
+    position: relative; 
     display: flex;
     align-items: center;
     justify-content: flex-end;
     height: 80px;
     width: 80px;
+}
+
+/* Make nav container full width and fixed position */
+nav {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    background-color: white; /* or your preferred color */
+    height: 80px; /* Set explicit height */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Optional: adds subtle shadow */
+}
+
+/* Style the ul to be full width with proper spacing */
+nav ul {
+    width: 100%;
+    height: 100%; /* Fill nav height */
+    margin: 0;
+    padding: 0 20px; /* Add horizontal padding */
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+/* Make sure logo container doesn't shrink */
+.logo-container {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* Add responsive design */
+@media screen and (max-width: 768px) {
+    nav ul {
+        padding: 0 10px; /* Smaller padding on mobile */
+    }
+    
+    /* Adjust other elements as needed for mobile */
+    .create-spot-button {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
 }
 
 

@@ -50,3 +50,11 @@
     color: #000000;
     border: 2px solid #000000;
 }
+
+.delete-spot-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    align-items: center;
+}

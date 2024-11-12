@@ -33,8 +33,9 @@ function Navigation({ isLoaded }) {
   });
 
   return (
-    <ul>
-      <li className="logo-container">
+    <nav>
+      <ul>
+        <li className="logo-container">
         <NavLink to="/">
           <img 
             // Fix the image path - remove 'public' from the path
@@ -67,8 +68,9 @@ function Navigation({ isLoaded }) {
         <li>
           <ProfileButton user={sessionUser} />
         </li>
-      )}
-    </ul>
+        )}
+      </ul>
+    </nav>
   );
 }
 

@@ -3,9 +3,10 @@ import './SpotDetails.css';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchSpotById } from '../../store/spots';
+import { fetchReviewsBySpotId } from '../../store/spotReviews';
 import PostReviewModal from '../PostReviewModal/PostReview';
+import DeleteReviewModal from '../DeleteReviewModal/DeleteReviewModal';
 import { useModal } from '../../context/Modal';
-import DeleteSpotModal from '../DeleteSpotModal/DeleteSpotModal';
 
 const SpotDetails = () => {
     const { spotId } = useParams();
@@ -14,20 +15,25 @@ const SpotDetails = () => {
     const reviews = useSelector(state => state.spotReviews.reviews || []);
     const currentUser = useSelector(state => state.session.user);
     const [showReviewModal, setShowReviewModal] = useState(false);
-    const { setModalContent } = useModal();
+    const { setModalContent, closeModal } = useModal();
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        console.log('Fetching spot details...');
-        dispatch(fetchSpotById(spotId))
-            .then(() => {
-                console.log('Spot details fetched successfully');
+        const loadData = async () => {
+            setIsLoading(true);
+            try {
+                await Promise.all([
+                    dispatch(fetchSpotById(spotId)),
+                    dispatch(fetchReviewsBySpotId(spotId))
+                ]);
+            } catch (error) {
+                console.error('Error loading data:', error);
+            } finally {
                 setIsLoading(false);
-            })
-            .catch(error => {
-                console.error('Error fetching spot details:', error);
-                setIsLoading(false);
-            });
+            }
+        };
+        
+        loadData();
     }, [dispatch, spotId]);
 
     useEffect(() => {
@@ -54,7 +60,10 @@ const SpotDetails = () => {
         setModalContent(
             <PostReviewModal
                 spotId={spotId}
-                onClose={() => setModalContent(null)}
+                onSubmitSuccess={() => {
+                    dispatch(fetchReviewsBySpotId(spotId));
+                    closeModal();
+                }}
             />
         );
     };
@@ -63,8 +72,13 @@ const SpotDetails = () => {
         setShowReviewModal(false);
     };
 
-    const openDeleteModal = () => {
-        setModalContent(<DeleteSpotModal spotId={spotId} />);
+    const openDeleteReviewModal = (reviewId) => {
+        setModalContent(
+            <DeleteReviewModal 
+                reviewId={reviewId}
+                spotId={spotId}
+            />
+        );
     };
 
     return (
@@ -100,49 +114,40 @@ const SpotDetails = () => {
                     </div>
                 </div>
             </div>
-            <div className='spot-details-reviews'>
-                <h1>
-                    {spot.numReviews === 0 ? (
-                        '★ New'
-                    ) : (
-                        <>
-                            ★ {spot.avgStarRating ? spot.avgStarRating : 'New'}
-                            {spot.numReviews > 0 && (
-                                <>
-                                    <span style={{ margin: '0 5px' }}>·</span>
-                                    {spot.numReviews} {spot.numReviews === 1 ? 'review' : 'reviews'}
-                                </>
-                            )}
-                        </>
-                    )}
-                </h1>
-                {canPostReview ? (
-                    <div className='spot-details-review-button'>
-                        <button className='login-button post-review-button' onClick={openReviewModal}>
-                            Post Your Review
-                        </button>
+            <div className="reviews-section">
+                <h2>★ {spot.avgStarRating ? spot.avgStarRating : 'New'} · {spot.numReviews} {spot.numReviews === 1 ? 'Review' : 'Reviews'}</h2>
+                {canPostReview && (
+                    <div className="spot-details-review-button">
+                        <button onClick={openReviewModal}>Post Your Review</button>
                     </div>
-                ) : (
-                    <div className='spot-details-review-button'></div>
                 )}
-                <div className='spot-details-reviews-list'>
+                <div className="reviews-container">
                     {reviews.length > 0 ? (
-                        [...reviews].reverse().map(review => {
-                            return (
-                                <div key={review.id} className='spot-details-review'>
-                                    <h3 className="review-header">
-                                        <span>{review.User?.firstName} {review.User?.lastName}</span>
-                                        <span className='review-stars'>★{review.stars}</span>
-                                    </h3>
-                                    <h4>{new Date(review.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric', day: 'numeric' })}</h4>
+                        reviews
+                            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                            .map(review => (
+                                <div key={review.id} className="review-item">
+                                    <h3>{review.User?.firstName}</h3>
+                                    <h4>{new Date(review.createdAt).toLocaleDateString('en-US', { 
+                                        month: 'long', 
+                                        year: 'numeric',
+                                        day: 'numeric'
+                                    })}</h4>
                                     <p>{review.review}</p>
+                                    {currentUser && currentUser.id === review.userId && (
+                                        <button 
+                                            onClick={() => openDeleteReviewModal(review.id)}
+                                            className="delete-review-button"
+                                        >
+                                            Delete Review
+                                        </button>
+                                    )}
                                 </div>
-                            );
-                        })
+                            ))
                     ) : (
-                        <div className='spot-details-review'>
+                        currentUser && currentUser.id !== spot.ownerId && (
                             <p>Be the first to post a review!</p>
-                        </div>
+                        )
                     )}
                 </div>
             </div>

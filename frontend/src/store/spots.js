@@ -1,4 +1,3 @@
-
 import { csrfFetch } from './csrf';
 
 // Action Types
@@ -99,14 +98,16 @@ export const createSpot = (spotData) => async (dispatch) => {
 
 export const deleteSpot = (spotId) => async (dispatch) => {
     try {
-        console.log(`Deleting spot with id ${spotId}...`);
         const response = await csrfFetch(`/api/spots/${spotId}`, {
             method: 'DELETE',
         });
+        
         if (response.ok) {
-            console.log(`Spot ${spotId} deleted successfully`);
             dispatch(removeSpot(spotId));
             return { success: true };
+        } else {
+            const error = await response.json();
+            return { success: false, error };
         }
     } catch (error) {
         console.error('Error deleting spot:', error);
@@ -166,13 +167,12 @@ const spotsReducer = (state = initialState, action) => {
                 }
             };
         case REMOVE_SPOT:
-            console.log('REMOVE_SPOT action dispatched with payload:', action.payload);
+            const newAllSpots = { ...state.allSpots };
+            delete newAllSpots[action.payload];
             return {
                 ...state,
-                allSpots: state.allSpots ? {
-                    ...state.allSpots,
-                    Spots: state.allSpots.Spots.filter(spot => spot.id !== action.payload)
-                } : state
+                allSpots: newAllSpots,
+                singleSpot: null
             };
         case UPDATE_SPOT:
             console.log('UPDATE_SPOT action dispatched with payload:', action.payload);

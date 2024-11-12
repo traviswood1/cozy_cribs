@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa';
 import * as sessionActions from '../../store/session';
 import OpenModalMenuItem from './OpenModalMenuItem';
@@ -8,7 +9,9 @@ import SignupFormModal from '../SignupFormModal/SignupFormModal';
 
 function ProfileButton({ user }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const ulRef = useRef();
 
   const toggleMenu = (e) => {
@@ -32,11 +35,19 @@ function ProfileButton({ user }) {
 
   const closeMenu = () => setShowMenu(false);
 
-  const logout = (e) => {
+  const logout = async (e) => {
     e.preventDefault();
-    dispatch(sessionActions.logout());
-    closeMenu();
-    window.location.href = '/';
+    setIsLoggingOut(true);
+    try {
+      await dispatch(sessionActions.logout());
+      closeMenu();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Optionally show an error message to the user
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   const ulClassName = "profile-dropdown" + (showMenu ? "" : " hidden");
@@ -55,25 +66,35 @@ function ProfileButton({ user }) {
               <li>Hello, {user.username}</li>
               <li>{user.email}</li>
             </div>
-              <a className='manage-spots-link' href='/spots/current'>
-                Manage Spots
-              </a>
+            <a className='manage-spots-link' href='/spots/current'>
+              Manage Spots
+            </a>
             <li>
-              <button onClick={logout} className="logout-button">Log Out</button>
+              <button 
+                onClick={logout} 
+                className="logout-button"
+                disabled={isLoggingOut}
+              >
+                {isLoggingOut ? 'Logging out...' : 'Log Out'}
+              </button>
             </li>
           </>
         ) : (
           <>
+            <li>
               <OpenModalMenuItem
                 itemText="Sign Up"
                 onItemClick={closeMenu}
                 modalComponent={<SignupFormModal />}
               />
-            <OpenModalMenuItem
-              itemText="Log In"
-              onItemClick={closeMenu}
-              modalComponent={<LoginFormModal />}
-            />
+            </li>
+            <li>
+              <OpenModalMenuItem
+                itemText="Log In"
+                onItemClick={closeMenu}
+                modalComponent={<LoginFormModal />}
+              />
+            </li>
           </>
         )}
       </ul>

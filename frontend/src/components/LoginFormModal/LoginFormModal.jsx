@@ -12,34 +12,46 @@ function LoginFormModal() {
   const [isFormValid, setIsFormValid] = useState(false);
   const { closeModal } = useModal();
 
-  const handleSubmit = useCallback((e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
-    return dispatch(sessionActions.login({ credential, password }))
-      .then(closeModal)
-      .catch(async (res) => {
-        const data = await res.json();
-        if (data && data.errors) {
-          setErrors(data.errors);
-        }
-      });
-  }, [credential, password, dispatch, closeModal]);
+    
+    try {
+      await dispatch(sessionActions.login({ credential, password }));
+      closeModal();
+    } catch (res) {
+      if (res.status === 401) {
+        setErrors({ credential: "The provided credentials were invalid" });
+      } else {
+        setErrors({ credential: "An error occurred. Please try again." });
+      }
+    }
+  };
+
+  const demoLogin = async (e) => {
+    e.preventDefault();
+    try {
+      await dispatch(sessionActions.login({ 
+        credential: "Demo-lition", 
+        password: "password" 
+      }));
+      closeModal();
+    } catch (error) {
+      setErrors({ credential: "Demo login failed. Please try again." });
+    }
+  };
 
   useEffect(() => {
     setIsFormValid(credential.length >= 4 && password.length >= 6);
   }, [credential, password]);
 
-  const demoLogin = (e) => {
-    e.preventDefault();
-    setCredential("Demo-lition");
-    setPassword("password");
-  };
-
   return (
     <>
       <h1>Log In</h1>
       <form onSubmit={handleSubmit}>
-          {errors.credential && <p className="error-message">{errors.credential}</p>}
+        {errors.credential && (
+          <p className="error-message">{errors.credential}</p>
+        )}
         <label>
           <input
             type="text"
@@ -66,7 +78,12 @@ function LoginFormModal() {
           Log In
         </button>
       </form>
-      <button className='demo-login' onClick={demoLogin}>Login as Demo User</button>
+      <button 
+        className='demo-login' 
+        onClick={demoLogin}
+      >
+        Login as Demo User
+      </button>
     </>
   );
 }

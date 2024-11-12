@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from 'react';
 import { useDispatch } from "react-redux";
 import { useModal } from "../../context/Modal";
 import * as sessionActions from "../../store/session";
@@ -13,7 +13,21 @@ function SignupFormModal() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const [isFormValid, setIsFormValid] = useState(false);
   const { closeModal } = useModal();
+
+  // Check form validity whenever any input changes
+  useEffect(() => {
+    const isValid = 
+      email.length > 0 && 
+      username.length >= 4 && 
+      firstName.length > 0 && 
+      lastName.length > 0 && 
+      password.length >= 6 && 
+      confirmPassword.length >= 6;
+    
+    setIsFormValid(isValid);
+  }, [email, username, firstName, lastName, password, confirmPassword]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -25,13 +39,13 @@ function SignupFormModal() {
           username,
           firstName,
           lastName,
-          password,
+          password
         })
       )
         .then(closeModal)
         .catch(async (res) => {
           const data = await res.json();
-          if (data && data.errors) {
+          if (data?.errors) {
             setErrors(data.errors);
           }
         });
@@ -44,69 +58,76 @@ function SignupFormModal() {
   return (
     <>
       <h1>Sign Up</h1>
-      {Object.keys(errors).length > 0 && (
-        <div className="error-list">
-          {Object.values(errors).map((error, idx) => (
-            <p key={idx} className="error">{error}</p>
-          ))}
-        </div>
-      )}
-      <form className="signup-form" onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         <label>
-          First Name
           <input
             type="text"
             value={firstName}
+            placeholder='First Name'
             onChange={(e) => setFirstName(e.target.value)}
             required
           />
         </label>
+        {errors.firstName && <p className="error">{errors.firstName}</p>}
         <label>
-          Last Name
           <input
             type="text"
             value={lastName}
+            placeholder='Last Name'
             onChange={(e) => setLastName(e.target.value)}
             required
           />
         </label>
+        {errors.lastName && <p className="error">{errors.lastName}</p>}
         <label>
-          Email
           <input
             type="text"
             value={email}
+            placeholder='Email'
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </label>
+        {errors.email && <p className="error">{errors.email}</p>}
         <label>
-          Username
           <input
             type="text"
             value={username}
+            placeholder='Username'
             onChange={(e) => setUsername(e.target.value)}
             required
           />
         </label>
+        {errors.username && <p className="error">{errors.username}</p>}
         <label>
-          Password
           <input
             type="password"
             value={password}
+            placeholder='Password'
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </label>
+        {errors.password && <p className="error">{errors.password}</p>}
         <label>
-          Confirm Password
           <input
             type="password"
             value={confirmPassword}
+            placeholder='Confirm Password'
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
         </label>
-        <button className="login-button" type="submit">Sign Up</button>
+        {errors.confirmPassword && (
+          <p className="error">{errors.confirmPassword}</p>
+        )}
+        <button 
+          type="submit" 
+          disabled={!isFormValid}
+          className={!isFormValid ? 'disabled' : ''}
+        >
+          Sign Up
+        </button>
       </form>
     </>
   );

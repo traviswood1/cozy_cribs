@@ -4,6 +4,7 @@ const SET_REVIEWS = 'reviews/setReviews';
 const ADD_REVIEW = 'reviews/addReview';
 const UPDATE_REVIEW = 'reviews/updateReview';
 const DELETE_REVIEW = 'reviews/deleteReview';
+const REMOVE_REVIEW = 'reviews/REMOVE_REVIEW';
 
 export const setReviews = (reviews) => ({
     type: SET_REVIEWS,
@@ -36,26 +37,31 @@ export const fetchReviewsBySpotId = (spotId) => async (dispatch) => {
 
 export const createReview = (spotId, reviewData) => async (dispatch) => {
     try {
-        console.log('Creating review for spot:', spotId, 'with data:', reviewData);
         const response = await csrfFetch(`/api/spots/${spotId}/reviews`, {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(reviewData)
         });
+
         if (!response.ok) {
-            const errorData = await response.json();
-            console.error('Server responded with an error:', response.status, errorData);
-            throw errorData;
+            const error = await response.json();
+            throw error;
         }
-        const data = await response.json();
-        console.log('Review created successfully:', data);
-        dispatch(addReview(data));
-        return data;
+
+        const newReview = await response.json();
+        dispatch(addReview(newReview));
+        
+        // Fetch updated reviews and spot details
+        await Promise.all([
+            dispatch(fetchReviewsBySpotId(spotId)),
+            dispatch(fetchSpotById(spotId)) // Add this import from your spots store
+        ]);
+        
+        return newReview;
     } catch (error) {
-        console.error('Error in createReview:', error);
-        if (error.json) {
-            const errorData = await error.json();
-            console.error('Error details:', errorData);
-        }
+        console.error('Error creating review:', error);
         throw error;
     }
 };
@@ -70,11 +76,25 @@ export const editReview = (reviewId, reviewData) => async (dispatch) => {
 };
 
 export const deleteReview = (reviewId) => async (dispatch) => {
-    await csrfFetch(`/api/reviews/${reviewId}`, {
-        method: 'DELETE'
-    });
-    dispatch({ type: 'DELETE_REVIEW', reviewId });
+    try {
+        const response = await csrfFetch(`/api/reviews/${reviewId}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            dispatch(removeReview(reviewId));
+            return { success: true };
+        }
+    } catch (error) {
+        console.error('Delete review error:', error);
+        return { success: false, error };
+    }
 };
+
+export const removeReview = (reviewId) => ({
+    type: REMOVE_REVIEW,
+    reviewId
+});
 
 const initialState = {
     reviews: []
@@ -85,12 +105,31 @@ const spotReviewsReducer = (state = initialState, action) => {
         case SET_REVIEWS:
             return {
                 ...state,
-                reviews: action.reviews.Reviews // Note the capital R in Reviews
+                reviews: action.reviews.Reviews || []
+            };
+        case ADD_REVIEW:
+            return {
+                ...state,
+                reviews: [...state.reviews, action.review]
             };
         case DELETE_REVIEW:
             return {
                 ...state,
                 reviews: state.reviews.filter(review => review.id !== action.reviewId)
+            };
+        case UPDATE_REVIEW:
+            return {
+                ...state,
+                reviews: state.reviews.map(review => 
+                    review.id === action.review.id ? action.review : review
+                )
+            };
+        case REMOVE_REVIEW:
+            const newState = { ...state };
+            const newReviews = newState.reviews.filter(review => review.id !== action.reviewId);
+            return {
+                ...newState,
+                reviews: newReviews
             };
         default:
             return state;

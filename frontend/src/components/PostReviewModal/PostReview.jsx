@@ -13,7 +13,7 @@ function PostReviewModal({ spotId }) {
   const { closeModal } = useModal();
   const [hoveredRating, setHoveredRating] = useState(0);
 
-  const handleSubmit = useCallback((e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({});
 
@@ -22,28 +22,44 @@ function PostReviewModal({ spotId }) {
       return;
     }
 
-    console.log('Submitting review for spot:', spotId, 'with data:', { review, stars: rating });
-    return dispatch(reviewActions.createReview(spotId, { review, stars: rating }))
-      .then((data) => {
-        console.log('Review submitted successfully:', data);
-        closeModal();
-      })
-      .catch(async (error) => {
-        console.error('Error submitting review:', error);
-        if (error.errors) {
-          console.log('Validation errors:', error.errors);
-          setErrors(error.errors);
-        } else if (error.message) {
-          console.log('Error message:', error.message);
-          setErrors({ general: error.message });
-        } else {
-          setErrors({ general: 'An unexpected error occurred. Please try again.' });
-        }
-      });
-  }, [spotId, review, rating, dispatch, closeModal]);
+    if (review.length < 10) {
+      setErrors({ review: "Review must be at least 10 characters long" });
+      return;
+    }
+
+    try {
+      await dispatch(reviewActions.createReview(spotId, { 
+        review, 
+        stars: rating 
+      }));
+      
+      // Close the modal after successful submission
+      closeModal();
+    } catch (error) {
+      if (error.errors) {
+        setErrors(error.errors);
+      } else if (error.message) {
+        setErrors({ general: error.message });
+      } else {
+        setErrors({ general: 'An unexpected error occurred' });
+      }
+    }
+  };
 
   useEffect(() => {
-    setIsFormValid(review.length >= 10 && rating !== 0);
+    const validateForm = () => {
+      const newErrors = {};
+      if (review.length < 10) {
+        newErrors.review = "Review must be at least 10 characters";
+      }
+      if (!rating) {
+        newErrors.stars = "Please select a rating";
+      }
+      setErrors(newErrors);
+      setIsFormValid(Object.keys(newErrors).length === 0);
+    };
+
+    validateForm();
   }, [review, rating]);
 
   return (

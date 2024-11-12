@@ -1,10 +1,12 @@
+@import '../../styles/shared.css';
+
 .spot-details-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     max-width: 1200px; /* Limit the maximum width */
-    margin: 0 auto; /* Center the container */
+    margin: 0px auto; /* Center the container */
     padding: 0 50px; 
 }
 
@@ -71,13 +73,13 @@
     border-radius: 8px;
 }
 
-/* New styles for information */
 .spot-details-info {
     flex: 1;
     min-width: 300px;
     justify-content: space-between;
     width: 100%;
-    margin-top: 20px;
+    margin: 0;
+    padding: 10px 0;
     border-bottom: 3px black solid;
 }
 
@@ -104,6 +106,7 @@
     padding: 10px;
     max-width: 300px;
     height: auto;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .price-rating-row {
@@ -153,6 +156,7 @@
     justify-content: flex-start;
     width: 100%;
     margin-bottom: 40px;
+    padding-left: 0;
 }
 
 .spot-details-review p {
@@ -180,11 +184,24 @@
     align-items: center;
 }
 
-.spot-details-review-button {
+.spot-details-review-button button {
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
     width: 100%;
+    background-color: #000000;
+    color: rgb(255, 255, 255);
+    border: 2px solid #000000;
+    width: fit-content;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.spot-details-review-button:hover button {
+    cursor: pointer;
+    background-color: rgb(255, 255, 255);
+    color: #000000;
+    border: 2px solid #000000;
 }
 
 /* Responsive adjustments */
@@ -209,4 +226,58 @@
         flex: 0 0 100%;
         max-width: 100%;
     }
+}
+
+.delete-review-button {
+    composes: delete-button;
+    width: fit-content;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #000000;
+    color: rgb(255, 255, 255);
+    border: 2px solid #000000;
+}
+
+.delete-review-button:hover {
+    cursor: pointer;
+    background-color: rgb(255, 255, 255);
+    color: #000000;
+    border: 2px solid #000000;
+}
+
+.review-item {
+    padding: var(--spacing-medium) 0;
+    border-bottom: 1px solid var(--border-color);
+    width: 100%;
+}
+
+.review-item:last-child {
+    border-bottom: none;
+}
+
+.review-item h3 {
+    color: var(--text-color);
+    margin-bottom: var(--spacing-tiny);
+}
+
+.review-item h4 {
+    color: var(--text-light);
+    margin-bottom: var(--spacing-small);
+}
+
+.review-item p {
+    color: var(--text-color);
+    line-height: 1.5;
+    margin-bottom: var(--spacing-medium);
+}
+
+.reviews-section {
+    margin-top: 30px;
+    width: 100%;
+    align-self: flex-start;
+}
+
+.reviews-container {
+    margin-top: var(--spacing-medium);
+    width: 100%;
 }

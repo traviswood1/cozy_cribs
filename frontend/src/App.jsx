@@ -8,6 +8,7 @@ import SpotDetails from './components/SpotDetails/SpotDetails';
 import UserSpots from './components/UserSpots/UserSpots';
 import EditSpot from './components/EditSpot/EditSpot';
 import * as sessionActions from './store/session';
+import { Modal } from './context/Modal';
 
 function Layout() {
   const dispatch = useDispatch();
@@ -27,13 +28,13 @@ function Layout() {
       });
   }, [dispatch]);
 
-  // Add immediate logging
-  console.log('Layout render:', { isLoaded });
-
   return (
     <>
       <Navigation isLoaded={isLoaded} />
-      {isLoaded && <Outlet />}
+      <main>
+        {isLoaded && <Outlet />}
+      </main>
+      <Modal />
     </>
   );
 }
@@ -67,7 +68,9 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <RouterProvider router={router} />
+  );
 }
 
 export default App;

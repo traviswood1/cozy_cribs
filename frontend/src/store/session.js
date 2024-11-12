@@ -11,11 +11,10 @@ const setUser = (user) => {
   };
 };
 
-const removeUser = () => {
-  return {
-    type: REMOVE_USER
-  };
-};
+const removeUser = () => ({
+  type: REMOVE_USER,
+  payload: null
+});
 
 const setLoading = (isLoading) => ({
   type: SET_LOADING,
@@ -40,31 +39,53 @@ export const signup = (user) => async (dispatch) => {
   };
 
 export const login = (user) => async (dispatch) => {
-  dispatch(setLoading(true));
   try {
-    const { credential, password } = user;
-    const response = await csrfFetch("/api/session", {
-      method: "POST",
-      body: JSON.stringify({
-        credential,
-        password
-      })
+    const response = await csrfFetch('/api/session', {
+      method: 'POST',
+      body: JSON.stringify(user)
     });
+
+    if (!response.ok) {
+      let error;
+      if (response.status === 401) {
+        error = new Error('Invalid credentials');
+        error.status = 401;
+      } else {
+        error = new Error('Login failed');
+      }
+      throw error;
+    }
+
     const data = await response.json();
     dispatch(setUser(data.user));
-    return response;
-  } finally {
-    dispatch(setLoading(false));
+    return data;
+  } catch (error) {
+    throw error;
   }
 };
 
 export const logout = () => async (dispatch) => {
+  dispatch(setLoading(true));
+  try {
     const response = await csrfFetch('/api/session', {
       method: 'DELETE'
     });
+
+    if (!response.ok) {
+      throw new Error('Logout failed');
+    }
+
+    await response.json();
     dispatch(removeUser());
+    
     return response;
-  };
+  } catch (error) {
+    console.error('Logout failed:', error);
+    throw error;
+  } finally {
+    dispatch(setLoading(false));
+  }
+};
 
 export const restoreUser = () => async dispatch => {
   dispatch(setLoading(true));
@@ -96,7 +117,8 @@ const sessionReducer = (state = initialState, action) => {
     case REMOVE_USER:
       return { 
         ...state, 
-        user: null 
+        user: null,
+        isLoading: false // Ensure loading is false after logout
       };
     case SET_LOADING:
       return {

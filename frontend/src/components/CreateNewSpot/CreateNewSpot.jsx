@@ -25,8 +25,9 @@ const CreateNewSpot = () => {
     const [errors, setErrors] = useState({});
     const [additionalPhotos, setAdditionalPhotos] = useState([]);
 
-    const handleInputChange = (field, value) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const validateForm = () => {

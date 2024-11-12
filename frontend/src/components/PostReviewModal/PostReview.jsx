@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import * as reviewActions from '../../store/spotReviews';
 import { useDispatch } from 'react-redux';
 import { useModal } from '../../context/Modal';
@@ -12,34 +12,43 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
     const { closeModal } = useModal();
     const [hoveredRating, setHoveredRating] = useState(0);
 
+    useEffect(() => {
+        console.log('PostReviewModal mounted with spotId:', spotId);
+    }, [spotId]);
+
     const handleSubmit = async (e) => {
+        console.log('Form submission started');
         e.preventDefault();
         setErrors({});
 
+        console.log('Form data:', { review, rating });
+
         if (review.length < 10) {
+            console.log('Review too short');
             setErrors({ review: "Review must be at least 10 characters" });
             return;
         }
         
         if (!rating || rating < 1 || rating > 5) {
+            console.log('Invalid rating');
             setErrors({ stars: "Please select a rating between 1 and 5" });
             return;
         }
 
         try {
-            console.log('Starting review submission...');
-            await dispatch(reviewActions.createReview(spotId, { 
+            console.log('Dispatching createReview action...');
+            const result = await dispatch(reviewActions.createReview(spotId, { 
                 review, 
                 stars: rating 
             }));
+            console.log('Review creation result:', result);
 
-            console.log('Review submitted successfully');
-            
             if (onSubmitSuccess) {
+                console.log('Calling onSubmitSuccess callback');
                 await onSubmitSuccess();
             }
             
-            console.log('Closing modal...');
+            console.log('Attempting to close modal');
             closeModal();
             
         } catch (error) {
@@ -52,6 +61,8 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
         }
     };
 
+    console.log('Rendering PostReviewModal with state:', { review, rating, errors });
+
     return (
         <>
             <h1>How was your stay?</h1>
@@ -59,10 +70,14 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
             <form onSubmit={handleSubmit}>
                 {errors.review && <p className="error-message">{errors.review}</p>}
                 <label>
-                    <textarea className='review-textarea'
+                    <textarea 
+                        className='review-textarea'
                         value={review}
                         placeholder='Leave your review here...'
-                        onChange={(e) => setReview(e.target.value)}
+                        onChange={(e) => {
+                            console.log('Review text changed:', e.target.value);
+                            setReview(e.target.value);
+                        }}
                         required
                     />
                 </label>
@@ -73,7 +88,10 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
                             className={`star ${(hoveredRating || rating) >= star ? 'filled' : ''}`}
                             onMouseEnter={() => setHoveredRating(star)}
                             onMouseLeave={() => setHoveredRating(0)}
-                            onClick={() => setRating(star)}
+                            onClick={() => {
+                                console.log('Star clicked:', star);
+                                setRating(star);
+                            }}
                         >
                             {(hoveredRating || rating) >= star ? '★' : '☆'}
                         </span>
@@ -83,8 +101,8 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
                 {errors.stars && <p className="error-message">{errors.stars}</p>}
                 <button 
                     className='login-button' 
-                    type="submit" 
-                    disabled={!isFormValid}
+                    type="submit"
+                    onClick={() => console.log('Submit button clicked')}
                 >
                     Submit Your Review
                 </button>

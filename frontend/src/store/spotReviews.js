@@ -17,7 +17,6 @@ const loadReviews = (reviews) => ({
 // Thunks
 export const createReview = (spotId, reviewData) => async (dispatch) => {
     try {
-        console.log('Creating review in thunk...');
         const response = await csrfFetch(`/api/spots/${spotId}/reviews`, {
             method: 'POST',
             headers: {
@@ -32,38 +31,51 @@ export const createReview = (spotId, reviewData) => async (dispatch) => {
         }
 
         const newReview = await response.json();
-        console.log('Review created:', newReview);
-        
         dispatch(addReview(newReview));
         
-        return newReview;
+        // Fetch updated reviews
+        await dispatch(fetchReviewsBySpotId(spotId));
+        
+        return { success: true, review: newReview };
     } catch (error) {
-        console.error('Error in createReview thunk:', error);
+        console.error('Error in createReview:', error);
         throw error;
     }
 };
 
 export const fetchReviewsBySpotId = (spotId) => async (dispatch) => {
     try {
+        console.log('Fetching reviews for spotId:', spotId);
         const response = await csrfFetch(`/api/spots/${spotId}/reviews`);
         if (response.ok) {
-            const reviews = await response.json();
-            dispatch(loadReviews(reviews.Reviews));
+            const data = await response.json();
+            dispatch(loadReviews(data.Reviews));
+            return data.Reviews;
         }
     } catch (error) {
         console.error('Error fetching reviews:', error);
+        throw error;
     }
 };
 
-// Reducer
-const initialState = { reviews: [] };
+// Initial State
+const initialState = {
+    reviews: []
+};
 
+// Reducer
 const spotReviewsReducer = (state = initialState, action) => {
     switch (action.type) {
         case ADD_REVIEW:
-            return { ...state, reviews: [...state.reviews, action.payload] };
+            return {
+                ...state,
+                reviews: [...state.reviews, action.payload]
+            };
         case LOAD_REVIEWS:
-            return { ...state, reviews: action.payload };
+            return {
+                ...state,
+                reviews: action.payload
+            };
         default:
             return state;
     }

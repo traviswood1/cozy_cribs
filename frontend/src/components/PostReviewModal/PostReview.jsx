@@ -17,40 +17,21 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
     }, [spotId]);
 
     const handleSubmit = async (e) => {
-        console.log('Form submission started');
         e.preventDefault();
         setErrors({});
 
-        console.log('Form data:', { review, rating });
-
-        if (review.length < 10) {
-            console.log('Review too short');
-            setErrors({ review: "Review must be at least 10 characters" });
-            return;
-        }
-        
-        if (!rating || rating < 1 || rating > 5) {
-            console.log('Invalid rating');
-            setErrors({ stars: "Please select a rating between 1 and 5" });
-            return;
-        }
-
         try {
-            console.log('Dispatching createReview action...');
             const result = await dispatch(reviewActions.createReview(spotId, { 
                 review, 
                 stars: rating 
             }));
-            console.log('Review creation result:', result);
 
-            if (onSubmitSuccess) {
-                console.log('Calling onSubmitSuccess callback');
-                await onSubmitSuccess();
+            if (result.success) {
+                if (onSubmitSuccess) {
+                    await onSubmitSuccess();
+                }
+                closeModal();
             }
-            
-            console.log('Attempting to close modal');
-            closeModal();
-            
         } catch (error) {
             console.error('Review submission error:', error);
             if (error.errors) {

@@ -8,7 +8,7 @@ export const fetchSpotData = async (spotId) => {
         }
         return await response.json();
     } catch (error) {
-        console.error('Error fetching spot:', error);
+        console.error('Error fetching spot data:', error);
         throw error;
     }
 }; 

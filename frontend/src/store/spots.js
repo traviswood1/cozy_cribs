@@ -58,10 +58,12 @@ export const fetchSpots = () => async (dispatch) => {
 export const fetchSpotById = (spotId) => async (dispatch) => {
     try {
         const spot = await fetchSpotData(spotId);
-        dispatch(setSingleSpot(spot));
+        if (spot) {
+            dispatch(setSingleSpot(spot));
+        }
         return spot;
     } catch (error) {
-        console.error('Error fetching spot:', error);
+        console.error('Error in fetchSpotById:', error);
         throw error;
     }
 };

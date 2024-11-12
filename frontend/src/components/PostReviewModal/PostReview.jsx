@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import * as reviewActions from '../../store/spotReviews';
 import { useDispatch } from 'react-redux';
 import { useModal } from '../../context/Modal';
-import { fetchSpotById } from '../../store/spots';
 import './PostReview.css';
 
 function PostReviewModal({ spotId }) {
@@ -18,16 +17,6 @@ function PostReviewModal({ spotId }) {
     e.preventDefault();
     setErrors({});
 
-    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
-      setErrors({ stars: "Rating must be an integer from 1 to 5" });
-      return;
-    }
-
-    if (review.length < 10) {
-      setErrors({ review: "Review must be at least 10 characters long" });
-      return;
-    }
-
     try {
       await dispatch(reviewActions.createReview(spotId, { 
         review, 
@@ -38,10 +27,8 @@ function PostReviewModal({ spotId }) {
       console.error('Review submission error:', error);
       if (error.errors) {
         setErrors(error.errors);
-      } else if (error.message) {
-        setErrors({ general: error.message });
       } else {
-        setErrors({ general: 'An unexpected error occurred' });
+        setErrors({ general: 'An error occurred while submitting your review.' });
       }
     }
   };

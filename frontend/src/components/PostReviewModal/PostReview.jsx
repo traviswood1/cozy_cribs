@@ -33,13 +33,9 @@ function PostReviewModal({ spotId }) {
         review, 
         stars: rating 
       }));
-      
-      // Refresh spot data after successful review submission
-      await dispatch(fetchSpotById(spotId));
-      
-      // Close the modal after both operations are complete
       closeModal();
     } catch (error) {
+      console.error('Review submission error:', error);
       if (error.errors) {
         setErrors(error.errors);
       } else if (error.message) {

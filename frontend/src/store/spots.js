@@ -1,5 +1,4 @@
 import { csrfFetch } from './csrf';
-import { fetchSpotData } from './utils/spotUtils';
 
 // Action Types
 const LOAD_SPOTS = 'spots/LOAD_SPOTS';
@@ -57,11 +56,12 @@ export const fetchSpots = () => async (dispatch) => {
 
 export const fetchSpotById = (spotId) => async (dispatch) => {
     try {
-        const spot = await fetchSpotData(spotId);
-        if (spot) {
+        const response = await csrfFetch(`/api/spots/${spotId}`);
+        if (response.ok) {
+            const spot = await response.json();
             dispatch(setSingleSpot(spot));
+            return spot;
         }
-        return spot;
     } catch (error) {
         console.error('Error in fetchSpotById:', error);
         throw error;

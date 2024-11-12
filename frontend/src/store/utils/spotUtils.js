@@ -3,12 +3,13 @@ import { csrfFetch } from '../csrf';
 export const fetchSpotData = async (spotId) => {
     try {
         const response = await csrfFetch(`/api/spots/${spotId}`);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch spot: ${response.status}`);
+        if (response.ok) {
+            const spot = await response.json();
+            return spot;
         }
-        return await response.json();
+        throw new Error('Failed to fetch spot data');
     } catch (error) {
-        console.error('Error fetching spot data:', error);
+        console.error('Error in fetchSpotData:', error);
         throw error;
     }
 }; 

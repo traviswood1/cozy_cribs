@@ -56,22 +56,15 @@ export const fetchSpots = () => async (dispatch) => {
 
 export const fetchSpotById = (spotId) => async (dispatch) => {
     try {
-        console.log(`Fetching spot with id ${spotId} from API...`);
         const response = await csrfFetch(`/api/spots/${spotId}`);
-        
-        if (!response.ok) {
-            const errorData = await response.text();
-            console.error(`Error response (${response.status}):`, errorData);
-            throw new Error(`Failed to fetch spot: ${response.status}`);
+        if (response.ok) {
+            const spot = await response.json();
+            dispatch(setSingleSpot(spot));
+            return spot;
         }
-
-        const spot = await response.json();
-        console.log('Spot received from API:', spot);
-        dispatch(setSingleSpot(spot));
-        return spot;
     } catch (error) {
         console.error('Error fetching spot:', error);
-        throw error; // Re-throw to handle in component
+        throw error;
     }
 };
 

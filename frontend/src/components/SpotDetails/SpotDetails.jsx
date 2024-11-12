@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import './SpotDetails.css';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchSpotById, fetchSpotData, setSingleSpot } from '../../store/spots';
+import { setSingleSpot } from '../../store/spots';
 import { fetchReviewsBySpotId } from '../../store/spotReviews';
+import { fetchSpotData } from '../../store/utils/spotUtils';
 import PostReviewModal from '../PostReviewModal/PostReview';
 import DeleteReviewModal from '../DeleteReviewModal/DeleteReviewModal';
 import { useModal } from '../../context/Modal';
@@ -15,16 +16,15 @@ const SpotDetails = () => {
     const reviews = useSelector(state => state.spotReviews.reviews || []);
     const currentUser = useSelector(state => state.session.user);
     const [isLoading, setIsLoading] = useState(true);
-    const { setModalContent, closeModal } = useModal();
+    const { setModalContent } = useModal();
 
     useEffect(() => {
         const loadData = async () => {
             setIsLoading(true);
             try {
-                await Promise.all([
-                    dispatch(fetchSpotById(spotId)),
-                    dispatch(fetchReviewsBySpotId(spotId))
-                ]);
+                const spotData = await fetchSpotData(spotId);
+                dispatch(setSingleSpot(spotData));
+                await dispatch(fetchReviewsBySpotId(spotId));
             } catch (error) {
                 console.error('Error loading data:', error);
             } finally {
@@ -35,9 +35,28 @@ const SpotDetails = () => {
         loadData();
     }, [dispatch, spotId]);
 
-    useEffect(() => {
-        console.log('Current spot in state:', spot);
-    }, [spot]);
+    const handleReviewSubmitSuccess = async () => {
+        console.log('Handling review submit success...');
+        try {
+            const updatedSpot = await fetchSpotData(spotId);
+            dispatch(setSingleSpot(updatedSpot));
+            await dispatch(fetchReviewsBySpotId(spotId));
+            console.log('Data updated successfully');
+        } catch (error) {
+            console.error('Error updating data after review:', error);
+        }
+    };
+
+    const openReviewModal = () => {
+        console.log('Opening review modal...');
+        setModalContent(
+            <PostReviewModal
+                spotId={spotId}
+                onSubmitSuccess={handleReviewSubmitSuccess}
+            />
+        );
+        console.log('Modal content set');
+    };
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -54,32 +73,6 @@ const SpotDetails = () => {
 
     const userHasReviewed = currentUser && reviews.some(review => review.userId === currentUser.id);
     const canPostReview = currentUser && currentUser.id !== spot.ownerId && !userHasReviewed;
-
-    const handleReviewSubmitSuccess = async () => {
-        console.log('Handling review submit success...');
-        try {
-            const updatedSpot = await fetchSpotData(spotId);
-            if (updatedSpot) {
-                dispatch(setSingleSpot(updatedSpot));
-            }
-            await dispatch(fetchReviewsBySpotId(spotId));
-            console.log('Data updated successfully');
-            closeModal();
-        } catch (error) {
-            console.error('Error updating data after review:', error);
-        }
-    };
-
-    const openReviewModal = () => {
-        console.log('Opening review modal...');
-        setModalContent(
-            <PostReviewModal
-                spotId={spotId}
-                onSubmitSuccess={handleReviewSubmitSuccess}
-            />
-        );
-        console.log('Modal content set');
-    };
 
     const openDeleteReviewModal = (reviewId) => {
         setModalContent(

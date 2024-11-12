@@ -45,9 +45,7 @@ export const createReview = (spotId, reviewData) => async (dispatch) => {
 
         // Update spot data
         const updatedSpot = await fetchSpotData(spotId);
-        if (updatedSpot) {
-            dispatch(setSingleSpot(updatedSpot));
-        }
+        dispatch(setSingleSpot(updatedSpot));
 
         return { success: true, review: newReview };
     } catch (error) {

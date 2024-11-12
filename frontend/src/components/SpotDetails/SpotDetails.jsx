@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './SpotDetails.css';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchSpotById } from '../../store/spots';
+import { fetchSpotById, fetchSpotData, setSingleSpot } from '../../store/spots';
 import { fetchReviewsBySpotId } from '../../store/spotReviews';
 import PostReviewModal from '../PostReviewModal/PostReview';
 import DeleteReviewModal from '../DeleteReviewModal/DeleteReviewModal';
@@ -58,10 +58,11 @@ const SpotDetails = () => {
     const handleReviewSubmitSuccess = async () => {
         console.log('Handling review submit success...');
         try {
-            await Promise.all([
-                dispatch(fetchSpotById(spotId)),
-                dispatch(fetchReviewsBySpotId(spotId))
-            ]);
+            const updatedSpot = await fetchSpotData(spotId);
+            if (updatedSpot) {
+                dispatch(setSingleSpot(updatedSpot));
+            }
+            await dispatch(fetchReviewsBySpotId(spotId));
             console.log('Data updated successfully');
             closeModal();
         } catch (error) {
@@ -73,10 +74,11 @@ const SpotDetails = () => {
         console.log('Opening review modal...');
         setModalContent(
             <PostReviewModal
-                spotId={spot.id}
+                spotId={spotId}
                 onSubmitSuccess={handleReviewSubmitSuccess}
             />
         );
+        console.log('Modal content set');
     };
 
     const openDeleteReviewModal = (reviewId) => {

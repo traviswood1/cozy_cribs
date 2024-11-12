@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import * as reviewActions from '../../store/spotReviews';
 import { useDispatch } from 'react-redux';
 import { useModal } from '../../context/Modal';
 import './PostReview.css';
 
 function PostReviewModal({ spotId, onSubmitSuccess }) {
+    console.log('PostReviewModal rendering with spotId:', spotId);
+
     const dispatch = useDispatch();
     const [review, setReview] = useState("");
     const [errors, setErrors] = useState({});
@@ -12,33 +14,48 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
     const { closeModal } = useModal();
     const [hoveredRating, setHoveredRating] = useState(0);
 
+    useEffect(() => {
+        console.log('PostReviewModal mounted');
+    }, []);
+
+    useEffect(() => {
+        console.log('Current state:', { review, rating, errors });
+    }, [review, rating, errors]);
+
     const handleSubmit = async (e) => {
+        console.log('handleSubmit called');
         e.preventDefault();
         setErrors({});
 
+        console.log('Validating form data:', { review, rating });
+
         if (review.length < 10) {
+            console.log('Review too short');
             setErrors({ review: "Review must be at least 10 characters" });
             return;
         }
         
         if (!rating || rating < 1 || rating > 5) {
+            console.log('Invalid rating');
             setErrors({ stars: "Please select a rating between 1 and 5" });
             return;
         }
 
         try {
-            console.log('Submitting review...');
+            console.log('Dispatching createReview action...');
             const result = await dispatch(reviewActions.createReview(spotId, { 
                 review, 
                 stars: rating 
             }));
             
-            console.log('Review submitted successfully');
-            
+            console.log('Review creation result:', result);
+
             if (onSubmitSuccess) {
+                console.log('Calling onSubmitSuccess callback');
                 await onSubmitSuccess();
             }
             
+            console.log('Closing modal');
             closeModal();
             
         } catch (error) {
@@ -51,7 +68,15 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
         }
     };
 
-    console.log('Rendering PostReviewModal with state:', { review, rating, errors });
+    const handleTextChange = (e) => {
+        console.log('Text changed:', e.target.value);
+        setReview(e.target.value);
+    };
+
+    const handleStarClick = (star) => {
+        console.log('Star clicked:', star);
+        setRating(star);
+    };
 
     return (
         <>
@@ -64,10 +89,7 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
                         className='review-textarea'
                         value={review}
                         placeholder='Leave your review here...'
-                        onChange={(e) => {
-                            console.log('Review text changed:', e.target.value);
-                            setReview(e.target.value);
-                        }}
+                        onChange={handleTextChange}
                         required
                     />
                 </label>
@@ -78,10 +100,7 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
                             className={`star ${(hoveredRating || rating) >= star ? 'filled' : ''}`}
                             onMouseEnter={() => setHoveredRating(star)}
                             onMouseLeave={() => setHoveredRating(0)}
-                            onClick={() => {
-                                console.log('Star clicked:', star);
-                                setRating(star);
-                            }}
+                            onClick={() => handleStarClick(star)}
                         >
                             {(hoveredRating || rating) >= star ? '★' : '☆'}
                         </span>
@@ -92,7 +111,6 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
                 <button 
                     className='login-button' 
                     type="submit"
-                    onClick={() => console.log('Submit button clicked')}
                 >
                     Submit Your Review
                 </button>

@@ -1,5 +1,6 @@
 import { csrfFetch } from './csrf';
-import { fetchSpotById } from './spots';
+import { fetchSpotData } from './utils/spotUtils';
+import { setSingleSpot } from './spots';
 
 const SET_REVIEWS = 'reviews/setReviews';
 const ADD_REVIEW = 'reviews/addReview';
@@ -62,7 +63,8 @@ export const createReview = (spotId, reviewData) => async (dispatch) => {
         // Then update the spot data
         try {
             console.log('Updating spot data...');
-            await dispatch(fetchSpotById(spotId));
+            const spotData = await fetchSpotData(spotId);
+            dispatch(setSingleSpot(spotData));
             console.log('Spot data updated successfully');
         } catch (error) {
             console.error('Error updating spot data:', error);

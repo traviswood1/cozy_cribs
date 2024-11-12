@@ -1,4 +1,5 @@
 import { csrfFetch } from './csrf';
+import { fetchSpotById } from './spots';
 
 const SET_REVIEWS = 'reviews/setReviews';
 const ADD_REVIEW = 'reviews/addReview';
@@ -37,6 +38,7 @@ export const fetchReviewsBySpotId = (spotId) => async (dispatch) => {
 
 export const createReview = (spotId, reviewData) => async (dispatch) => {
     try {
+        console.log('Starting review creation for spot:', spotId);
         const response = await csrfFetch(`/api/spots/${spotId}/reviews`, {
             method: 'POST',
             headers: {
@@ -47,17 +49,24 @@ export const createReview = (spotId, reviewData) => async (dispatch) => {
 
         if (!response.ok) {
             const error = await response.json();
+            console.error('Review creation failed:', error);
             throw error;
         }
 
         const newReview = await response.json();
+        console.log('Review created successfully:', newReview);
+        
+        // Dispatch add review action
         dispatch(addReview(newReview));
         
-        // Fetch updated reviews and spot details
-        await Promise.all([
-            dispatch(fetchReviewsBySpotId(spotId)),
-            dispatch(fetchSpotById(spotId)) // Add this import from your spots store
-        ]);
+        // Update spot and reviews data sequentially to avoid race conditions
+        try {
+            await dispatch(fetchReviewsBySpotId(spotId));
+            await dispatch(fetchSpotById(spotId));
+        } catch (updateError) {
+            console.error('Error updating data after review creation:', updateError);
+            // Don't throw here - the review was still created successfully
+        }
         
         return newReview;
     } catch (error) {

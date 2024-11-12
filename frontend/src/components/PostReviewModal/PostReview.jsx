@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import * as reviewActions from '../../store/spotReviews';
 import { useDispatch } from 'react-redux';
 import { useModal } from '../../context/Modal';
 import './PostReview.css';
 
-function PostReviewModal({ spotId, onSubmitSuccess }) {
+function PostReviewModal({ spotId }) {
     const dispatch = useDispatch();
     const [review, setReview] = useState("");
     const [errors, setErrors] = useState({});
@@ -12,26 +12,30 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
     const { closeModal } = useModal();
     const [hoveredRating, setHoveredRating] = useState(0);
 
-    useEffect(() => {
-        console.log('PostReviewModal mounted with spotId:', spotId);
-    }, [spotId]);
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors({});
 
+        if (review.length < 10) {
+            setErrors({ review: "Review must be at least 10 characters" });
+            return;
+        }
+        
+        if (!rating || rating < 1 || rating > 5) {
+            setErrors({ stars: "Please select a rating between 1 and 5" });
+            return;
+        }
+
         try {
-            const result = await dispatch(reviewActions.createReview(spotId, { 
+            console.log('Submitting review...');
+            await dispatch(reviewActions.createReview(spotId, { 
                 review, 
                 stars: rating 
             }));
-
-            if (result.success) {
-                if (onSubmitSuccess) {
-                    await onSubmitSuccess();
-                }
-                closeModal();
-            }
+            
+            console.log('Review submitted successfully, closing modal...');
+            closeModal();
+            
         } catch (error) {
             console.error('Review submission error:', error);
             if (error.errors) {

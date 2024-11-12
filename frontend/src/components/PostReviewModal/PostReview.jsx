@@ -71,7 +71,7 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
 
     return (
         <div className="review-modal">
-            <h1>How was your stay?</h1>
+            <h1 style={{color: 'red'}}>TEST - Modal is rendering</h1>
             {errors.general && <p className="error-message">{errors.general}</p>}
             <form onSubmit={handleSubmit}>
                 {errors.review && <p className="error-message">{errors.review}</p>}

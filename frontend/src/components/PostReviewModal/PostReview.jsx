@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import * as reviewActions from '../../store/spotReviews';
 import { useDispatch } from 'react-redux';
 import { useModal } from '../../context/Modal';
+import { fetchSpotById } from '../../store/spots';
 import './PostReview.css';
 
 function PostReviewModal({ spotId }) {
@@ -33,7 +34,10 @@ function PostReviewModal({ spotId }) {
         stars: rating 
       }));
       
-      // Close the modal after successful submission
+      // Refresh spot data after successful review submission
+      await dispatch(fetchSpotById(spotId));
+      
+      // Close the modal after both operations are complete
       closeModal();
     } catch (error) {
       if (error.errors) {

@@ -49,7 +49,7 @@ export const createReview = (spotId, reviewData) => async (dispatch) => {
             dispatch(setSingleSpot(updatedSpot));
         }
 
-        return newReview;
+        return { success: true, review: newReview };
     } catch (error) {
         console.error('Error in createReview:', error);
         throw error;

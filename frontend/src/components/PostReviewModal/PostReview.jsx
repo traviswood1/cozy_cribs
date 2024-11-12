@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { useModal } from '../../context/Modal';
 import './PostReview.css';
 
-function PostReviewModal({ spotId }) {
+function PostReviewModal({ spotId, onSubmitSuccess }) {
     const dispatch = useDispatch();
     const [review, setReview] = useState("");
     const [errors, setErrors] = useState({});
@@ -28,12 +28,17 @@ function PostReviewModal({ spotId }) {
 
         try {
             console.log('Submitting review...');
-            await dispatch(reviewActions.createReview(spotId, { 
+            const result = await dispatch(reviewActions.createReview(spotId, { 
                 review, 
                 stars: rating 
             }));
             
-            console.log('Review submitted successfully, closing modal...');
+            console.log('Review submitted successfully');
+            
+            if (onSubmitSuccess) {
+                await onSubmitSuccess();
+            }
+            
             closeModal();
             
         } catch (error) {

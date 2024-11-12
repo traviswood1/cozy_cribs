@@ -8,7 +8,7 @@ import SpotDetails from './components/SpotDetails/SpotDetails';
 import UserSpots from './components/UserSpots/UserSpots';
 import EditSpot from './components/EditSpot/EditSpot';
 import * as sessionActions from './store/session';
-import { Modal } from './context/Modal';
+import { ModalProvider, Modal } from './context/Modal';
 
 function Layout() {
   const dispatch = useDispatch();
@@ -34,7 +34,6 @@ function Layout() {
       <main>
         {isLoaded && <Outlet />}
       </main>
-      <Modal />
     </>
   );
 }
@@ -69,7 +68,10 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <RouterProvider router={router} />
+    <ModalProvider>
+      <RouterProvider router={router} />
+      <Modal />
+    </ModalProvider>
   );
 }
 

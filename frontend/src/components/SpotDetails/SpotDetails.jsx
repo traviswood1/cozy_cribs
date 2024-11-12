@@ -48,16 +48,23 @@ const SpotDetails = () => {
     };
 
     const openReviewModal = () => {
-        console.log('Opening review modal button clicked');
-        console.log('Setting modal content with spotId:', spotId);
-        setModalContent(
-            <PostReviewModal
-                spotId={spotId}
-                onSubmitSuccess={handleReviewSubmitSuccess}
-            />
+        console.log('openReviewModal called');
+        const modalComponent = (
+            <div style={{backgroundColor: 'white', padding: '20px'}}>
+                <h1 style={{color: 'red'}}>TEST MODAL</h1>
+                <PostReviewModal
+                    spotId={spotId}
+                    onSubmitSuccess={handleReviewSubmitSuccess}
+                />
+            </div>
         );
-        console.log('Modal content has been set');
+        console.log('Setting modal content');
+        setModalContent(modalComponent);
     };
+
+    useEffect(() => {
+        console.log('canPostReview:', canPostReview);
+    }, [canPostReview]);
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -122,12 +129,18 @@ const SpotDetails = () => {
                 {canPostReview && (
                     <div className="spot-details-review-button">
                         <button 
-                            onClick={(e) => {
-                                console.log('Post Review button clicked');
+                            onClick={() => {
+                                console.log('Review button clicked');
                                 openReviewModal();
                             }}
+                            style={{
+                                padding: '10px',
+                                backgroundColor: 'blue',
+                                color: 'white',
+                                cursor: 'pointer'
+                            }}
                         >
-                            Post Your Review
+                            Post Your Review (Test)
                         </button>
                     </div>
                 )}

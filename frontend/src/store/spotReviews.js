@@ -70,7 +70,8 @@ export const createReview = (spotId, reviewData) => async (dispatch) => {
             console.error('Error updating spot data:', error);
         }
         
-        return newReview;
+        console.log('Review created and data updated successfully');
+        return { success: true };
     } catch (error) {
         console.error('Error in createReview:', error);
         throw error;

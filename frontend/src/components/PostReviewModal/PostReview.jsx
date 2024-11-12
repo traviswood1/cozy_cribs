@@ -10,6 +10,7 @@ function PostReviewModal({ spotId }) {
     const [rating, setRating] = useState(0);
     const [errors, setErrors] = useState({});
     const { closeModal } = useModal();
+    const [hoveredRating, setHoveredRating] = useState(0);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -26,11 +27,15 @@ function PostReviewModal({ spotId }) {
         }
 
         try {
+            console.log('Submitting review...');
             await dispatch(reviewActions.createReview(spotId, { 
                 review, 
                 stars: rating 
             }));
+            console.log('Review submitted successfully');
+            console.log('Attempting to close modal...');
             closeModal();
+            console.log('Modal should be closed now');
         } catch (error) {
             console.error('Review submission error:', error);
             if (error.errors) {

@@ -8,7 +8,6 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
     const dispatch = useDispatch();
     const [review, setReview] = useState("");
     const [errors, setErrors] = useState({});
-    const [isFormValid, setIsFormValid] = useState(false);
     const [rating, setRating] = useState(0);
     const { closeModal } = useModal();
     const [hoveredRating, setHoveredRating] = useState(0);
@@ -36,12 +35,10 @@ function PostReviewModal({ spotId, onSubmitSuccess }) {
 
             console.log('Review submitted successfully');
             
-            // Call the success callback first
             if (onSubmitSuccess) {
                 await onSubmitSuccess();
             }
             
-            // Then close the modal
             console.log('Closing modal...');
             closeModal();
             

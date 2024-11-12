@@ -58,7 +58,6 @@ const SpotDetails = () => {
     const handleReviewSubmitSuccess = async () => {
         console.log('Handling review submit success...');
         try {
-            // Fetch updated data
             await Promise.all([
                 dispatch(fetchSpotById(spotId)),
                 dispatch(fetchReviewsBySpotId(spotId))

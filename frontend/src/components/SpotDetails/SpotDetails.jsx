@@ -14,9 +14,8 @@ const SpotDetails = () => {
     const spot = useSelector(state => state.spots.singleSpot);
     const reviews = useSelector(state => state.spotReviews.reviews || []);
     const currentUser = useSelector(state => state.session.user);
-    const [showReviewModal, setShowReviewModal] = useState(false);
-    const { setModalContent, closeModal } = useModal();
     const [isLoading, setIsLoading] = useState(true);
+    const { setModalContent, closeModal } = useModal();
 
     useEffect(() => {
         const loadData = async () => {
@@ -56,20 +55,24 @@ const SpotDetails = () => {
     const userHasReviewed = currentUser && reviews.some(review => review.userId === currentUser.id);
     const canPostReview = currentUser && currentUser.id !== spot.ownerId && !userHasReviewed;
 
+    const handleReviewSubmitSuccess = async () => {
+        try {
+            await Promise.all([
+                dispatch(fetchSpotById(spotId)),
+                dispatch(fetchReviewsBySpotId(spotId))
+            ]);
+        } catch (error) {
+            console.error('Error updating data after review:', error);
+        }
+    };
+
     const openReviewModal = () => {
         setModalContent(
             <PostReviewModal
                 spotId={spotId}
-                onSubmitSuccess={() => {
-                    dispatch(fetchReviewsBySpotId(spotId));
-                    closeModal();
-                }}
+                onSubmitSuccess={handleReviewSubmitSuccess}
             />
         );
-    };
-
-    const closeReviewModal = () => {
-        setShowReviewModal(false);
     };
 
     const openDeleteReviewModal = (reviewId) => {
@@ -151,12 +154,6 @@ const SpotDetails = () => {
                     )}
                 </div>
             </div>
-            {showReviewModal && (
-                <PostReviewModal
-                    spotId={spot.id}
-                    onClose={closeReviewModal}
-                />
-            )}
         </div>
     );
 };

@@ -18,7 +18,7 @@ form {
     align-items: center;
     justify-content: center;
     gap: 20px;
-    width: 100%; /* Ensure the form takes full width */
+    width: 100%;
 }
 
 label {
